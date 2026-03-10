@@ -1,16 +1,19 @@
 "use client";
 
 import { useState } from "react";
+import { useApolloClient } from "@apollo/client";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Button } from "@/components/ui/Button";
 import { useAuth } from "@/hooks/useAuth";
 import { useUser } from "@/hooks/useUser";
 import { useDeleteAccountMutation } from "@/lib/graphql/generated";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+import { clearAllLocalStorage } from "@/lib/utils/localStorage";
 
 export default function SettingsPage() {
   const { logout } = useAuth();
   const { user, isDeveloper, isRecruiter } = useUser();
+  const apolloClient = useApolloClient();
 
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteInput, setDeleteInput] = useState("");
@@ -27,9 +30,10 @@ export default function SettingsPage() {
     setIsDeleting(true);
     try {
       await deleteAccount();
+      clearAllLocalStorage();
+      await apolloClient.clearStore();
       logout();
     } catch (error) {
-      console.error("Failed to delete account:", error);
       setIsDeleting(false);
     }
   };
