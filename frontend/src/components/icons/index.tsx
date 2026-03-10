@@ -43,6 +43,13 @@ export const PlayIcon = ({ className = "w-4 h-4" }: IconProps) => (
   </svg>
 );
 
+export const PauseIcon = ({ className = "w-4 h-4" }: IconProps) => (
+  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+    <rect x="6" y="4" width="4" height="16" />
+    <rect x="14" y="4" width="4" height="16" />
+  </svg>
+);
+
 export const CheckCircleIcon = ({ className = "w-4 h-4" }: IconProps) => (
   <svg
     className={className}
