@@ -45,7 +45,6 @@ export function ProtectedRoute({
     redirectTo,
   ]);
 
-  // Show loading state while checking auth
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
@@ -57,12 +56,10 @@ export function ProtectedRoute({
     );
   }
 
-  // Not authenticated
   if (isGuest) {
-    return null; // Will redirect in useEffect
+    return null;
   }
 
-  // Check role if required
   if (requiredRoles && user && !hasRequiredRole) {
     const rolesText = requiredRoles.map((r) => r.toLowerCase() + "s").join(" or ");
     return (

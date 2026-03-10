@@ -13,7 +13,7 @@ import { Divider } from "@/components/ui/Divider";
 import { RoleCard } from "@/components/ui/RoleCard";
 import { AuthLayout } from "@/components/layout/AuthLayout";
 import { useAuth } from "@/hooks/useAuth";
-import { UserRole } from "@/lib/graphql";
+import { UserRole } from "@/lib/graphql/generated";
 
 export default function JoinPage() {
   const [step, setStep] = useState<1 | 2>(1);

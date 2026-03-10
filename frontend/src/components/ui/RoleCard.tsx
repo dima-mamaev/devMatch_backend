@@ -1,5 +1,5 @@
 import { CodeIcon, SearchIcon, CheckIcon } from "@/components/icons";
-import { UserRole } from "@/lib/graphql";
+import { UserRole } from "@/lib/graphql/generated";
 
 interface RoleCardProps {
   role: UserRole;

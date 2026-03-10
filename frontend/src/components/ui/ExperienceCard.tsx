@@ -29,18 +29,15 @@ export function ExperienceCard({ experiences }: ExperienceCardProps) {
           const isCurrent = !exp.endYear;
           return (
             <div key={exp.id} className="flex gap-4">
-              {/* Timeline */}
               <div className="flex flex-col items-center">
                 <div
-                  className={`w-2.5 h-2.5 rounded-full mt-1 ${
-                    isCurrent ? "bg-indigo-600" : "bg-slate-300"
-                  }`}
+                  className={`w-2.5 h-2.5 rounded-full mt-1 ${isCurrent ? "bg-indigo-600" : "bg-slate-300"
+                    }`}
                 />
                 {index < experiences.length - 1 && (
                   <div className="w-px flex-1 bg-slate-200 mt-1.5" />
                 )}
               </div>
-              {/* Content */}
               <div className="flex-1 pb-5">
                 <div className="flex items-start justify-between">
                   <div>

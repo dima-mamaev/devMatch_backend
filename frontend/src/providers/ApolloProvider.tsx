@@ -30,7 +30,6 @@ export function ApolloProvider({ children }: ApolloProviderProps) {
       try {
         const token = await getTokenRef.current();
         headers.set("Authorization", `Bearer ${token}`);
-
         const pendingRole = typeof window !== "undefined"
           ? localStorage.getItem("devmatch_pending_role")
           : null;

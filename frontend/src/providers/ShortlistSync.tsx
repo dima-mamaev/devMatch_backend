@@ -11,7 +11,7 @@ import {
   getLocalShortlist,
   clearLocalShortlist,
   getMergeAdditions,
-} from "@/lib/localShortlist";
+} from "@/lib/utils/localShortlist";
 
 interface ShortlistSyncProps {
   children: React.ReactNode;

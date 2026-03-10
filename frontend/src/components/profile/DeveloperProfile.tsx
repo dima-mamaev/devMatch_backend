@@ -113,7 +113,6 @@ export function DeveloperProfile() {
         file,
       },
     });
-    // Video is processed asynchronously, profile will be updated via polling/subscription
   };
 
   const handleAddProject = async (data: AddProjectData) => {
@@ -217,11 +216,8 @@ export function DeveloperProfile() {
           </span>
         )}
       </div>
-
-      {/* Content */}
       <div className="p-6">
         <div className="max-w-5xl mx-auto flex gap-6">
-          {/* Left Column - Preview Card */}
           <div className="w-80 shrink-0 space-y-4">
             <ProfilePhotoForm
               profilePhoto={profile.profilePhoto || null}
@@ -232,15 +228,11 @@ export function DeveloperProfile() {
               onUpload={handleUploadProfilePhoto}
               isLoading={uploadPhotoLoading}
             />
-
-            {/* Availability */}
             <AvailabilityForm
               availabilityStatus={profile.availabilityStatus || "Available"}
               onSubmit={handleAvailabilitySubmit}
               isLoading={profileLoading}
             />
-
-            {/* Intro Video */}
             <IntroVideoForm
               introVideo={profile.introVideo || null}
               introVideoThumbnail={profile.introVideoThumbnail || null}

@@ -22,26 +22,19 @@ export function RecruiterProfile() {
 
   return (
     <>
-      {/* Header */}
       <div className="bg-white border-b border-slate-200 h-14 flex items-center justify-between px-6">
         <div>
           <h1 className="text-base font-bold text-slate-900">My Profile</h1>
           <p className="text-xs text-slate-400">Manage your recruiter profile</p>
         </div>
       </div>
-
-      {/* Content */}
       <div className="p-6">
         <div className="max-w-3xl mx-auto space-y-6">
-          {/* Profile Card */}
           <div className="bg-white border border-slate-200 rounded-2xl p-6">
             <div className="flex items-start gap-6">
-              {/* Avatar */}
               <div className="w-24 h-24 bg-cyan-600 rounded-2xl flex items-center justify-center shrink-0">
                 <span className="text-3xl font-bold text-white">{initials}</span>
               </div>
-
-              {/* Info */}
               <div className="flex-1">
                 <div className="flex items-start justify-between">
                   <div>
@@ -53,7 +46,6 @@ export function RecruiterProfile() {
                     Edit Profile
                   </button>
                 </div>
-
                 <div className="flex items-center gap-4 mt-4 text-sm text-slate-600">
                   <span className="flex items-center gap-1.5">
                     <MailIcon className="w-4 h-4 text-slate-400" />
@@ -63,8 +55,6 @@ export function RecruiterProfile() {
               </div>
             </div>
           </div>
-
-          {/* Basic Info */}
           <div className="bg-white border border-slate-200 rounded-2xl p-5">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
@@ -100,8 +90,6 @@ export function RecruiterProfile() {
               </div>
             </div>
           </div>
-
-          {/* Quick Stats */}
           <div className="grid grid-cols-3 gap-4">
             <div className="bg-white border border-slate-200 rounded-2xl p-5 text-center">
               <div className="w-10 h-10 bg-indigo-100 rounded-xl flex items-center justify-center mx-auto mb-3">

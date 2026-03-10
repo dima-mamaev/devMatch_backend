@@ -20,7 +20,6 @@ export default function AIMatchPage() {
 
   const handleSubmit = () => {
     if (!prompt.trim()) return;
-    // TODO: Implement AI matching
     console.log("Submitting prompt:", prompt);
   };
 
@@ -33,7 +32,6 @@ export default function AIMatchPage() {
 
   return (
     <DashboardLayout>
-      {/* Header */}
       <div className="bg-white border-b border-slate-200 h-14 flex items-center px-6">
         <div className="flex items-center gap-2.5">
           <div className="w-7 h-7 bg-indigo-50 rounded-[10px] flex items-center justify-center">
@@ -45,29 +43,19 @@ export default function AIMatchPage() {
           </div>
         </div>
       </div>
-
-      {/* Content */}
       <div className="flex flex-col h-[calc(100vh-56px)]">
-        {/* Main Area */}
         <div className="flex-1 flex items-center justify-center p-6">
           <div className="max-w-lg w-full text-center">
-            {/* Icon */}
             <div className="w-14 h-14 bg-indigo-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
               <SparklesIcon className="w-6 h-6 text-indigo-600" />
             </div>
-
-            {/* Heading */}
             <h2 className="text-xl font-bold text-slate-900 mb-2">
               Find your perfect developer
             </h2>
-
-            {/* Description */}
             <p className="text-sm text-slate-500 mb-8 max-w-md mx-auto">
               Describe your project requirements in plain English. Our AI will analyze the
               developer pool and return a ranked shortlist with detailed reasoning.
             </p>
-
-            {/* Example Prompts */}
             <div>
               <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-4">
                 Try an example
@@ -86,8 +74,6 @@ export default function AIMatchPage() {
             </div>
           </div>
         </div>
-
-        {/* Input Area */}
         <div className="bg-white border-t border-slate-200 p-4">
           <div className="max-w-3xl mx-auto">
             <div className="flex gap-3">
@@ -102,11 +88,10 @@ export default function AIMatchPage() {
               <button
                 onClick={handleSubmit}
                 disabled={!prompt.trim()}
-                className={`w-11 h-11 rounded-xl flex items-center justify-center transition-colors ${
-                  prompt.trim()
-                    ? "bg-indigo-600 text-white hover:bg-indigo-700"
-                    : "bg-indigo-600 text-white opacity-40 cursor-not-allowed"
-                }`}
+                className={`w-11 h-11 rounded-xl flex items-center justify-center transition-colors ${prompt.trim()
+                  ? "bg-indigo-600 text-white hover:bg-indigo-700"
+                  : "bg-indigo-600 text-white opacity-40 cursor-not-allowed"
+                  }`}
               >
                 <SendIcon className="w-4 h-4" />
               </button>

@@ -20,7 +20,6 @@ export function Auth0Provider({ children }: Auth0ProviderProps) {
     typeof window !== "undefined" ? window.location.origin : "";
 
   const onRedirectCallback = (appState?: AppState) => {
-    console.log("[Auth0] onRedirectCallback appState:", appState);
     router.replace(appState?.returnTo || "/dashboard");
   };
 

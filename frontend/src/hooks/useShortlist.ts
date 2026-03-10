@@ -1,8 +1,5 @@
 import { useCallback, useState, useEffect, useRef } from "react";
 import { useUser } from "./useUser";
-
-// Stable empty array reference to avoid infinite re-renders
-const EMPTY_ARRAY: string[] = [];
 import {
   useGetMyShortlistQuery,
   useGetMyShortlistCountQuery,
@@ -17,25 +14,21 @@ import {
   removeFromLocalShortlist,
   isInLocalShortlist,
   clearLocalShortlist,
-} from "@/lib/localShortlist";
+} from "@/lib/utils/localShortlist";
 
 export function useShortlist() {
   const { isGuest, isLoading: userLoading } = useUser();
 
-  // Local state for localStorage shortlist (for reactivity)
   const [localShortlistIds, setLocalShortlistIds] = useState<string[]>([]);
 
-  // Use guest status to determine local mode (guest = localStorage, authenticated = API)
   const isLocalMode = isGuest;
 
-  // Initialize local shortlist state on mount (client-side only)
   useEffect(() => {
     if (isLocalMode) {
       setLocalShortlistIds(getLocalShortlist());
     }
   }, [isLocalMode]);
 
-  // API queries/mutations (only used when authenticated)
   const {
     data: shortlistData,
     loading: shortlistLoading,
@@ -62,7 +55,6 @@ export function useShortlist() {
   const [clearShortlistMutation, { loading: clearingShortlist }] =
     useClearMyShortlistMutation();
 
-  // Store Apollo functions in refs to avoid dependency issues
   const refetchShortlistRef = useRef(refetchShortlist);
   refetchShortlistRef.current = refetchShortlist;
   const refetchCountRef = useRef(refetchCount);
@@ -74,11 +66,9 @@ export function useShortlist() {
   const clearShortlistMutationRef = useRef(clearShortlistMutation);
   clearShortlistMutationRef.current = clearShortlistMutation;
 
-  // API shortlist data
   const apiShortlist = shortlistData?.getMyShortlist ?? [];
   const apiShortlistCount = countData?.getMyShortlistCount ?? 0;
 
-  // Computed values based on mode
   const shortlistCount = isLocalMode ? localShortlistIds.length : apiShortlistCount;
 
   const isInShortlist = useCallback(
@@ -168,13 +158,11 @@ export function useShortlist() {
     }
   }, [isLocalMode]);
 
-  // Unified shortlist IDs - works for both local and API modes
   const shortlistIds = isLocalMode
     ? localShortlistIds
     : apiShortlist.map((entry) => entry.developer.id);
 
   return {
-    // Unified developer IDs array for both modes
     shortlistIds,
     shortlistCount,
     shortlistLoading: isLocalMode ? false : (shortlistLoading || userLoading),
@@ -188,15 +176,10 @@ export function useShortlist() {
   };
 }
 
-/**
- * Hook to check if a specific developer is in the shortlist
- * More efficient for single developer checks
- */
 export function useIsInShortlist(developerId: string) {
   const { isGuest, isLoading: userLoading } = useUser();
   const isLocalMode = isGuest;
 
-  // Local state for localStorage check
   const [localIsIn, setLocalIsIn] = useState(false);
 
   useEffect(() => {
@@ -211,11 +194,9 @@ export function useIsInShortlist(developerId: string) {
     fetchPolicy: "cache-and-network",
   });
 
-  // Store refetch in ref
   const refetchRef = useRef(refetch);
   refetchRef.current = refetch;
 
-  // Refetch function that also updates local state
   const refetchAll = useCallback(() => {
     if (isLocalMode) {
       setLocalIsIn(isInLocalShortlist(developerId));

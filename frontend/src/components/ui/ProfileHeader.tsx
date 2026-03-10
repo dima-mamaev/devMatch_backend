@@ -36,7 +36,6 @@ export function ProfileHeader({
   return (
     <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-6">
       <div className="flex gap-5">
-        {/* Avatar */}
         <div className="shrink-0">
           {profilePhotoUrl ? (
             <img
@@ -52,8 +51,6 @@ export function ProfileHeader({
             </div>
           )}
         </div>
-
-        {/* Info */}
         <div className="flex-1">
           <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
             {fullName}
