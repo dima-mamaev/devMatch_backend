@@ -39,7 +39,6 @@ export class CloudinaryService {
 
       return result.secure_url;
     } catch (err) {
-      console.error('Cloudinary upload error:', err);
       throw new InternalServerErrorException(err);
     }
   }
@@ -69,8 +68,6 @@ export class CloudinaryService {
   }
 
   extractPublicId(url: string): string | null {
-    // Extract public_id from Cloudinary URL
-    // e.g., https://res.cloudinary.com/cloud/video/upload/v123/folder/file.mp4
     const match = url.match(/\/upload\/(?:v\d+\/)?(.+?)(?:\.[^.]+)?$/);
     return match ? match[1] : null;
   }
@@ -78,10 +75,7 @@ export class CloudinaryService {
   async deleteVideo(publicId: string): Promise<void> {
     try {
       await cloudinary.uploader.destroy(publicId, { resource_type: 'video' });
-      console.log('[Cloudinary] Deleted video:', publicId);
     } catch (err) {
-      console.error('[Cloudinary] Failed to delete video:', publicId, err);
-      // Don't throw - deletion failure shouldn't break the flow
     }
   }
 }

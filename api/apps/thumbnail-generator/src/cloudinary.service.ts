@@ -13,10 +13,6 @@ export class CloudinaryService {
   }
 
   async uploadFile(publicId: string, data: Buffer, folder = 'devmatch/thumbnails'): Promise<string> {
-    console.log('[Cloudinary] Uploading thumbnail...');
-    console.log('[Cloudinary] publicId:', publicId);
-    console.log('[Cloudinary] folder:', folder);
-    console.log('[Cloudinary] buffer size:', data.length);
 
     try {
       const result = await new Promise<UploadApiResponse>((resolve, reject) => {
@@ -29,10 +25,8 @@ export class CloudinaryService {
             },
             (error, result) => {
               if (error) {
-                console.error('[Cloudinary] Upload error:', error);
                 reject(error);
               } else {
-                console.log('[Cloudinary] Upload success:', result?.secure_url);
                 resolve(result!);
               }
             },
@@ -42,7 +36,6 @@ export class CloudinaryService {
 
       return result.secure_url;
     } catch (err) {
-      console.error('[Cloudinary] Upload failed:', err);
       throw new InternalServerErrorException(err);
     }
   }

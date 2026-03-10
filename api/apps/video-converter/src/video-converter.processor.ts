@@ -25,7 +25,6 @@ export class VideoConverterProcessor extends WorkerHost {
   }
 
   async convertVideo({ inputPath, developerId, videoMediaId }: ConvertVideoInputData) {
-    // Download video from Cloudinary to temp file
     const tempDir = resolve('tmp_files');
     await mkdir(tempDir, { recursive: true });
 
@@ -36,22 +35,11 @@ export class VideoConverterProcessor extends WorkerHost {
     const tempOutputPath = resolve(tempDir, outputFileName);
 
     try {
-      // Download the video
-      console.log('[VideoConverter] Downloading video from:', inputPath);
       const videoBuffer = await this.cloudinaryService.getFileBuffer(inputPath);
-      console.log('[VideoConverter] Downloaded buffer size:', videoBuffer.length);
       await writeFile(tempInputPath, videoBuffer);
-      console.log('[VideoConverter] Saved to temp:', tempInputPath);
-
-      // Convert the video (may return original path if already optimized)
-      console.log('[VideoConverter] Starting conversion...');
       const convertedPath = await this.videoConverterService.convert(tempInputPath);
       const wasConverted = convertedPath !== tempInputPath;
-      console.log('[VideoConverter] Result:', wasConverted ? 'Converted' : 'Skipped (already optimized)');
-
-      // Upload video (converted or original)
       const fileBuffer = await readFile(convertedPath);
-      console.log('[VideoConverter] File size to upload:', fileBuffer.length);
 
       const publicId = `${developerId}_${timestamp}`;
       const outputUrl = await this.cloudinaryService.uploadFile(
@@ -60,40 +48,30 @@ export class VideoConverterProcessor extends WorkerHost {
         'video',
         'devmatch/videos',
       );
-      console.log('[VideoConverter] Uploaded to Cloudinary:', outputUrl);
-
-      // Clean up local temp files
       await unlink(tempInputPath);
       if (wasConverted) {
         await unlink(convertedPath);
       }
 
-      // Delete original temp file from Cloudinary
       const tempPublicId = this.cloudinaryService.extractPublicId(inputPath);
       if (tempPublicId) {
         await this.cloudinaryService.deleteVideo(tempPublicId);
-        console.log('[VideoConverter] Deleted temp file from Cloudinary:', tempPublicId);
       }
 
-      // Queue output
       return this.videoConverterService.enqueueConvertedVideoOutput({
         outputPath: outputUrl,
         developerId,
         videoMediaId,
       });
     } catch (err) {
-      // Clean up on error
       try {
         await unlink(tempInputPath);
       } catch {
-        // Ignore cleanup errors
       }
       try {
         await unlink(tempOutputPath);
       } catch {
-        // Ignore cleanup errors
       }
-      console.error('[VideoConverter] Error:', err);
       throw err;
     }
   }

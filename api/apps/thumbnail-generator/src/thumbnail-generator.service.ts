@@ -9,10 +9,9 @@ export class ThumbnailGeneratorService {
   constructor(
     @InjectQueue('GeneratorOutputQueue')
     private readonly queue: Queue,
-  ) {}
+  ) { }
 
   async generateThumbnailFromVideo(videoUrl: string): Promise<Buffer> {
-    console.log('[Thumbnail] Generating thumbnail from video:', videoUrl);
 
     const browser = await puppeteer.launch({
       headless: true,
@@ -26,19 +25,12 @@ export class ThumbnailGeneratorService {
         '--autoplay-policy=no-user-gesture-required',
       ],
     });
-    console.log('[Thumbnail] Browser launched');
 
     try {
       const page = await browser.newPage();
-      console.log('[Thumbnail] New page created');
-
-      // Listen to browser console for debugging
       page.on('console', (msg) => console.log('[Browser]', msg.text()));
       page.on('pageerror', (err) => console.error('[Browser Error]', String(err)));
       await page.setViewport({ width: 640, height: 360 });
-
-      // Create HTML with video player that auto-seeks to 1 second
-      // Videos are guaranteed to be MP4 (H.264) from the video converter
       const html = `
         <!DOCTYPE html>
         <html>
@@ -99,36 +91,27 @@ export class ThumbnailGeneratorService {
         </html>
       `;
 
-      console.log('[Thumbnail] Setting page content...');
       await page.setContent(html, {
-        waitUntil: 'domcontentloaded', // Don't wait for network - video will stream
+        waitUntil: 'domcontentloaded',
         timeout: 30000,
       });
-      console.log('[Thumbnail] Page content set, waiting for video to load...');
 
-      // Wait for video to load and seek to target time
       await page.waitForFunction(() => {
         const video = document.getElementById('video') as HTMLVideoElement;
         if (!video) return false;
-        // Check if video has loaded and seeked (currentTime > 0 means seek completed)
         return video.readyState >= 3 && video.currentTime > 0;
       }, { timeout: 60000 });
-      console.log('[Thumbnail] Video loaded and seeked');
 
-      // Small delay to ensure frame is fully rendered
       await new Promise((resolve) => setTimeout(resolve, 300));
 
-      console.log('[Thumbnail] Taking screenshot...');
       const screenshot = await page.screenshot({
         type: 'webp',
         quality: 85,
         optimizeForSpeed: true,
       });
-      console.log('[Thumbnail] Screenshot taken, size:', screenshot.length);
 
       return Buffer.from(screenshot);
     } finally {
-      console.log('[Thumbnail] Closing browser');
       await browser.close();
     }
   }

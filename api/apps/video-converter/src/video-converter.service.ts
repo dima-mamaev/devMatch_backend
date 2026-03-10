@@ -16,18 +16,17 @@ interface VideoInfo {
   fileSize: number;
 }
 
-// Target settings for optimization
-const TARGET_MAX_BITRATE = 1_000_000; // 1 Mbps
-const TARGET_MAX_WIDTH = 1280; // 720p max
-const TARGET_CRF = 30; // More aggressive compression
-const ALREADY_OPTIMIZED_THRESHOLD = 0.8; // Skip if input is within 80% of target
+const TARGET_MAX_BITRATE = 1_000_000;
+const TARGET_MAX_WIDTH = 1280;
+const TARGET_CRF = 30;
+const ALREADY_OPTIMIZED_THRESHOLD = 0.8;
 
 @Injectable()
 export class VideoConverterService {
   constructor(
     @InjectQueue('ConverterOutputQueue')
     private readonly queue: Queue,
-  ) {}
+  ) { }
 
   async probeVideo(inputPath: string): Promise<VideoInfo> {
     return new Promise((resolve, reject) => {
@@ -65,7 +64,7 @@ export class VideoConverterService {
 
           resolve({
             codec: stream.codec_name || 'unknown',
-            container: format.format_name || 'unknown', // e.g., "mov,mp4,m4a,3gp,3g2,mj2" for MP4
+            container: format.format_name || 'unknown',
             width: parseInt(stream.width) || 0,
             height: parseInt(stream.height) || 0,
             bitrate: parseInt(stream.bit_rate || format.bit_rate) || 0,
@@ -80,36 +79,29 @@ export class VideoConverterService {
   }
 
   private isMp4Container(container: string): boolean {
-    // FFprobe returns "mov,mp4,m4a,3gp,3g2,mj2" for MP4 files
     return container.includes('mp4') || container.includes('mov');
   }
 
   shouldConvert(info: VideoInfo): { shouldConvert: boolean; reason: string; mustConvert: boolean } {
-    // Always convert non-MP4 containers (mustConvert = true means we can't use original even if larger)
     if (!this.isMp4Container(info.container)) {
       return { shouldConvert: true, mustConvert: true, reason: `Non-MP4 container: ${info.container}` };
     }
 
-    // Always convert non-H.264 videos
     if (info.codec !== 'h264') {
       return { shouldConvert: true, mustConvert: true, reason: `Non-H.264 codec: ${info.codec}` };
     }
 
-    // Convert if resolution is too high
     if (info.width > TARGET_MAX_WIDTH) {
       return { shouldConvert: true, mustConvert: false, reason: `Resolution too high: ${info.width}x${info.height}` };
     }
 
-    // Convert if bitrate is too high
     if (info.bitrate > TARGET_MAX_BITRATE) {
       return { shouldConvert: true, mustConvert: false, reason: `Bitrate too high: ${Math.round(info.bitrate / 1000)}kbps` };
     }
 
-    // Calculate expected optimized size based on target bitrate
     const expectedSize = (TARGET_MAX_BITRATE / 8) * info.duration;
     const currentSize = info.fileSize;
 
-    // Skip if already smaller than what we'd produce
     if (currentSize <= expectedSize * ALREADY_OPTIMIZED_THRESHOLD) {
       return { shouldConvert: false, mustConvert: false, reason: `Already optimized: ${Math.round(currentSize / 1024)}KB` };
     }
@@ -121,58 +113,36 @@ export class VideoConverterService {
     const inputFileName = basename(inputPath, '.mp4');
     const outputPath = resolve(`tmp_files/${inputFileName}_converted.mp4`);
 
-    console.log('[FFmpeg] Input:', inputPath);
-
-    // Probe input video first
     let info: VideoInfo;
     try {
       info = await this.probeVideo(inputPath);
-      console.log('[FFmpeg] Input info:', {
-        codec: info.codec,
-        container: info.container,
-        resolution: `${info.width}x${info.height}`,
-        bitrate: `${Math.round(info.bitrate / 1000)}kbps`,
-        duration: `${info.duration.toFixed(1)}s`,
-        size: `${Math.round(info.fileSize / 1024)}KB`,
-      });
     } catch (err) {
-      console.warn('[FFmpeg] Probe failed, proceeding with conversion:', err);
       info = { codec: 'unknown', container: 'unknown', width: 0, height: 0, bitrate: 0, duration: 0, fileSize: 0 };
     }
-
-    // Check if conversion is needed
     const { shouldConvert, mustConvert, reason } = this.shouldConvert(info);
-    console.log(`[FFmpeg] Should convert: ${shouldConvert}, must convert: ${mustConvert} (${reason})`);
 
     if (!shouldConvert) {
-      console.log('[FFmpeg] Skipping conversion, input is already optimized');
-      return inputPath; // Return original file path
+      return inputPath;
     }
 
-    console.log('[FFmpeg] Output:', outputPath);
-
-    // Build FFmpeg args based on input analysis
     const ffmpegArgs = ['-i', inputPath];
 
-    // Scale down if resolution is too high
     if (info.width > TARGET_MAX_WIDTH) {
       ffmpegArgs.push('-vf', `scale=${TARGET_MAX_WIDTH}:-2`);
     }
 
     ffmpegArgs.push(
       '-c:v', 'libx264',
-      '-preset', 'slow',        // Better compression (was 'fast')
-      '-crf', String(TARGET_CRF), // More aggressive compression (was '23')
-      '-maxrate', '1M',         // Cap bitrate
-      '-bufsize', '2M',         // Buffer size for rate control
+      '-preset', 'slow',
+      '-crf', String(TARGET_CRF),
+      '-maxrate', '1M',
+      '-bufsize', '2M',
       '-c:a', 'aac',
-      '-b:a', '96k',            // Lower audio bitrate (was '128k')
+      '-b:a', '96k',
       '-movflags', '+faststart',
       '-y',
       outputPath,
     );
-
-    console.log('[FFmpeg] Running:', 'ffmpeg', ffmpegArgs.join(' '));
 
     return new Promise((resolve, reject) => {
       let processClosed = false;
@@ -185,7 +155,6 @@ export class VideoConverterService {
       });
 
       ffmpegProcess.on('error', (err) => {
-        console.error(`FFmpeg process failed: ${err.message}`);
         if (processClosed) return;
         processClosed = true;
         reject(err);
@@ -196,7 +165,6 @@ export class VideoConverterService {
         processClosed = true;
 
         if (code === 0) {
-          // Compare sizes and use the smaller file
           try {
             const outputStats = await stat(outputPath);
             const inputSize = info.fileSize || 0;
@@ -205,24 +173,16 @@ export class VideoConverterService {
               ? Math.round((1 - outputSize / inputSize) * 100)
               : 0;
 
-            console.log(`[FFmpeg] Conversion complete: ${outputPath}`);
-            console.log(`[FFmpeg] Size: ${Math.round(inputSize / 1024)}KB → ${Math.round(outputSize / 1024)}KB (${savings}% ${savings >= 0 ? 'smaller' : 'larger'})`);
-
-            // If converted file is larger and we don't MUST convert, use the original instead
-            // mustConvert is true when input is not H.264/MP4, so we must use converted version
             if (!mustConvert && inputSize > 0 && outputSize >= inputSize) {
-              console.log('[FFmpeg] Converted file is larger, using original instead');
-              await unlink(outputPath).catch(() => {});
+              await unlink(outputPath).catch(() => { });
               resolve(inputPath);
               return;
             }
           } catch {
-            console.log(`[FFmpeg] Conversion complete: ${outputPath}`);
           }
           resolve(outputPath);
         } else {
           const err = new Error(`Video converting failed with code: ${code}`);
-          console.error(`ffmpeg stderr:\n${stderrOutput}`);
           reject(err);
         }
       });
