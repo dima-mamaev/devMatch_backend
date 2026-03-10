@@ -22,7 +22,6 @@ export default function ShortlistPage() {
     isLoading: shortlistActionLoading,
   } = useShortlist();
 
-  // Unified fetching using GetDevelopers with ids filter
   const { data, loading: developersLoading } = useGetDevelopersQuery({
     variables: {
       filter: { ids: shortlistIds },
@@ -37,7 +36,6 @@ export default function ShortlistPage() {
 
   const handleRemove = async (developerId: string) => {
     await removeFromShortlist(developerId);
-    // Reset to page 1 if current page becomes empty
     if (developers.length === 1 && currentPage > 1) {
       setCurrentPage(currentPage - 1);
     }

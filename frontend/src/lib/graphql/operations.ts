@@ -190,6 +190,7 @@ export const GET_DEVELOPERS = gql`
       limit
       results {
         id
+        email
         firstName
         lastName
         jobTitle

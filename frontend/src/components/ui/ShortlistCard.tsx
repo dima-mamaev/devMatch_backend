@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import {
   GithubIcon,
   LinkedinIcon,
@@ -8,6 +7,7 @@ import {
   UserIcon,
   TrashIcon,
 } from "@/components/icons";
+import { Button } from "@/components/ui/Button";
 
 interface Developer {
   id: string;
@@ -57,9 +57,7 @@ export function ShortlistCard({
 
   return (
     <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-5">
-      {/* Main content row */}
       <div className="flex gap-4">
-        {/* Avatar */}
         <div className="shrink-0">
           {developer.profilePhoto?.url ? (
             <img
@@ -73,8 +71,6 @@ export function ShortlistCard({
             </div>
           )}
         </div>
-
-        {/* Info section */}
         <div className="flex-1 min-w-0">
           <h3 className="text-base font-bold text-slate-900">{fullName}</h3>
           <p className="text-sm text-slate-500 mt-0.5">
@@ -83,7 +79,6 @@ export function ShortlistCard({
           {locationExperience && (
             <p className="text-xs text-slate-400 mt-0.5">{locationExperience}</p>
           )}
-          {/* Tech Stack */}
           {developer.techStack.length > 0 && (
             <div className="flex flex-wrap gap-1.5 mt-3">
               {developer.techStack.slice(0, 5).map((tech) => (
@@ -102,65 +97,49 @@ export function ShortlistCard({
             </div>
           )}
         </div>
-
-        {/* Actions section */}
         <div className="shrink-0 flex flex-col gap-2">
-          {/* Social links row */}
           <div className="flex gap-2">
             {developer.githubUrl && (
-              <a
-                href={developer.githubUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-1.5 px-2.5 py-1.5 border border-slate-200 rounded-[10px] text-xs font-medium text-slate-500 hover:bg-slate-50"
-              >
+              <Button variant="outline-muted" size="xs" href={developer.githubUrl}>
                 <GithubIcon className="w-3 h-3" />
                 GitHub
-              </a>
+              </Button>
             )}
             {developer.linkedinUrl && (
-              <a
-                href={developer.linkedinUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-1.5 px-2.5 py-1.5 border border-slate-200 rounded-[10px] text-xs font-medium text-slate-500 hover:bg-slate-50"
-              >
+              <Button variant="outline-muted" size="xs" href={developer.linkedinUrl}>
                 <LinkedinIcon className="w-3 h-3" />
                 LinkedIn
-              </a>
+              </Button>
             )}
             {developer.email && (
-              <a
-                href={`mailto:${developer.email}`}
-                className="flex items-center gap-1.5 px-2.5 py-1.5 border border-slate-200 rounded-[10px] text-xs font-medium text-slate-500 hover:bg-slate-50"
-              >
+              <Button variant="outline-muted" size="xs" href={`mailto:${developer.email}`}>
                 <MailIcon className="w-3 h-3" />
                 Email
-              </a>
+              </Button>
             )}
           </div>
-          {/* Action buttons row */}
           <div className="flex gap-2">
-            <Link
+            <Button
+              variant="outline"
+              size="xs"
               href={`/dashboard/developers/${developer.id}`}
-              className="flex-1 flex items-center justify-center gap-1.5 px-4 py-1.5 border border-slate-200 rounded-[10px] text-xs font-medium text-slate-600 hover:bg-slate-50"
+              className="flex-1"
             >
               <UserIcon className="w-3 h-3" />
               Profile
-            </Link>
-            <button
+            </Button>
+            <Button
+              variant="danger"
+              size="xs"
               onClick={() => onRemove(developer.id)}
               disabled={isLoading}
-              className="flex items-center justify-center gap-1.5 px-3 py-1.5 border border-red-200 rounded-[10px] text-xs font-medium text-red-500 hover:bg-red-50 disabled:opacity-50"
             >
               <TrashIcon className="w-3 h-3" />
               Remove
-            </button>
+            </Button>
           </div>
         </div>
       </div>
-
-      {/* Bio section */}
       {developer.bio && (
         <div className="mt-4 pt-4 border-t border-slate-100">
           <p className="text-xs text-slate-500 leading-relaxed line-clamp-2">

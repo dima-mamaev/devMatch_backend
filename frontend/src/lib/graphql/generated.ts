@@ -509,7 +509,7 @@ export type GetDevelopersQueryVariables = Exact<{
 }>;
 
 
-export type GetDevelopersQuery = { getDevelopers: { total: number, page?: number | null, limit?: number | null, results: Array<{ id: string, firstName: string, lastName: string, jobTitle?: string | null, bio?: string | null, location?: string | null, seniorityLevel?: SeniorityLevel | null, availabilityStatus?: AvailabilityStatus | null, techStack: Array<string>, githubUrl?: string | null, linkedinUrl?: string | null, profilePhoto?: { id: string, url: string, type: MediaType } | null, introVideo?: { id: string, url: string } | null, introVideoThumbnail?: { id: string, url: string } | null }> } };
+export type GetDevelopersQuery = { getDevelopers: { total: number, page?: number | null, limit?: number | null, results: Array<{ id: string, email: string, firstName: string, lastName: string, jobTitle?: string | null, bio?: string | null, location?: string | null, seniorityLevel?: SeniorityLevel | null, availabilityStatus?: AvailabilityStatus | null, techStack: Array<string>, githubUrl?: string | null, linkedinUrl?: string | null, profilePhoto?: { id: string, url: string, type: MediaType } | null, introVideo?: { id: string, url: string } | null, introVideoThumbnail?: { id: string, url: string } | null }> } };
 
 export type GetMyRecruiterProfileQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -939,6 +939,7 @@ export const GetDevelopersDocument = gql`
     limit
     results {
       id
+      email
       firstName
       lastName
       jobTitle
