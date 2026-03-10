@@ -131,6 +131,7 @@ export const GET_DEVELOPER = gql`
   query GetDeveloper($id: ID!) {
     getDeveloper(id: $id) {
       id
+      email
       firstName
       lastName
       jobTitle

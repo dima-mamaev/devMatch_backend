@@ -62,6 +62,8 @@ export type Developer = {
   availabilityStatus?: Maybe<AvailabilityStatus>;
   bio?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['DateTime']['output'];
+  /** Developer email from associated user */
+  email: Scalars['String']['output'];
   experiences: Array<Experience>;
   firstName: Scalars['String']['output'];
   githubUrl?: Maybe<Scalars['String']['output']>;
@@ -498,7 +500,7 @@ export type GetDeveloperQueryVariables = Exact<{
 }>;
 
 
-export type GetDeveloperQuery = { getDeveloper?: { id: string, firstName: string, lastName: string, jobTitle?: string | null, bio?: string | null, location?: string | null, seniorityLevel?: SeniorityLevel | null, availabilityStatus?: AvailabilityStatus | null, techStack: Array<string>, githubUrl?: string | null, linkedinUrl?: string | null, personalSiteUrl?: string | null, profilePhoto?: { id: string, url: string, type: MediaType } | null, introVideo?: { id: string, url: string, type: MediaType, processingStatus?: MediaProcessingStatus | null } | null, introVideoThumbnail?: { id: string, url: string, type: MediaType } | null, experiences: Array<{ id: string, companyName: string, position: string, startYear: number, endYear?: number | null, description?: string | null }>, projects: Array<{ id: string, name: string, description?: string | null, url?: string | null, techStack: Array<string> }> } | null };
+export type GetDeveloperQuery = { getDeveloper?: { id: string, email: string, firstName: string, lastName: string, jobTitle?: string | null, bio?: string | null, location?: string | null, seniorityLevel?: SeniorityLevel | null, availabilityStatus?: AvailabilityStatus | null, techStack: Array<string>, githubUrl?: string | null, linkedinUrl?: string | null, personalSiteUrl?: string | null, profilePhoto?: { id: string, url: string, type: MediaType } | null, introVideo?: { id: string, url: string, type: MediaType, processingStatus?: MediaProcessingStatus | null } | null, introVideoThumbnail?: { id: string, url: string, type: MediaType } | null, experiences: Array<{ id: string, companyName: string, position: string, startYear: number, endYear?: number | null, description?: string | null }>, projects: Array<{ id: string, name: string, description?: string | null, url?: string | null, techStack: Array<string> }> } | null };
 
 export type GetDevelopersQueryVariables = Exact<{
   filter?: InputMaybe<DeveloperFilterInput>;
@@ -847,6 +849,7 @@ export const GetDeveloperDocument = gql`
     query GetDeveloper($id: ID!) {
   getDeveloper(id: $id) {
     id
+    email
     firstName
     lastName
     jobTitle

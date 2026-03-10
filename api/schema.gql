@@ -50,6 +50,9 @@ type Developer {
   availabilityStatus: AvailabilityStatus
   bio: String
   createdAt: DateTime!
+
+  """Developer email from associated user"""
+  email: String!
   experiences: [Experience!]!
   firstName: String!
   githubUrl: String

@@ -40,12 +40,18 @@ export function VideoPlayer({
   const [isPlaying, setIsPlaying] = useState(autoPlay);
   const [showThumbnail, setShowThumbnail] = useState(!!thumbnail && !autoPlay);
 
-  const handleTogglePlay = useCallback(() => {
+  const handleTogglePlay = useCallback((e?: React.MouseEvent) => {
+    e?.stopPropagation();
     if (videoRef.current) {
       if (isPlaying) {
         videoRef.current.pause();
       } else {
-        videoRef.current.play();
+        setShowThumbnail(false);
+        setIsPlaying(true);
+        videoRef.current.play().then(() => {
+        }).catch((err) => {
+          setIsPlaying(false);
+        });
       }
     }
   }, [isPlaying]);
@@ -69,18 +75,18 @@ export function VideoPlayer({
     onEnded?.();
   }, [thumbnail, loop, onEnded]);
 
-  // React to autoPlay prop changes (for swiper slide activation)
+  const prevAutoPlayRef = useRef(autoPlay);
   useEffect(() => {
-    if (videoRef.current) {
-      if (autoPlay && !isPlaying) {
+    if (videoRef.current && prevAutoPlayRef.current !== autoPlay) {
+      prevAutoPlayRef.current = autoPlay;
+      if (autoPlay) {
         videoRef.current.play().catch(() => {
-          // Autoplay was prevented, user needs to interact first
         });
-      } else if (!autoPlay && isPlaying) {
+      } else {
         videoRef.current.pause();
       }
     }
-  }, [autoPlay, isPlaying]);
+  }, [autoPlay]);
 
   const aspectClass = aspectRatioClasses[aspectRatio];
 
@@ -89,37 +95,38 @@ export function VideoPlayer({
       <video
         ref={videoRef}
         src={url}
-        className="absolute inset-0 w-full h-full object-cover cursor-pointer touch-pan-y"
+        className="absolute inset-0 w-full h-full object-cover touch-pan-y"
         controls={controls && !showThumbnail}
         autoPlay={autoPlay}
         muted={muted || autoPlay}
         loop={loop}
         playsInline
-        onClick={handleTogglePlay}
         onPlay={handleVideoPlay}
         onPause={handleVideoPause}
         onEnded={handleVideoEnded}
       />
       {showThumbnail && thumbnail && (
-        <div className="absolute inset-0">
+        <div className="absolute inset-0 pointer-events-none">
           <img
             src={thumbnail}
             alt="Video thumbnail"
             className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-linear-to-b from-black/10 via-transparent to-black/30 pointer-events-none" />
+          <div className="absolute inset-0 bg-linear-to-b from-black/10 via-transparent to-black/30" />
         </div>
       )}
-      {/* Play/Pause button - only the icon is clickable */}
       {!isPlaying && (
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <button
-            onClick={handleTogglePlay}
-            className="w-16 h-16 bg-white/20 border border-white/30 rounded-full flex items-center justify-center hover:bg-white/30 transition-colors cursor-pointer pointer-events-auto"
-            aria-label="Play video"
-          >
+        <div
+          className="absolute inset-0 flex items-center justify-center cursor-pointer"
+          onMouseDown={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            handleTogglePlay();
+          }}
+        >
+          <div className="w-16 h-16 bg-white/20 border border-white/30 rounded-full flex items-center justify-center hover:bg-white/30 transition-colors">
             <PlayIcon className="w-6 h-6 text-white ml-1" />
-          </button>
+          </div>
         </div>
       )}
     </div>

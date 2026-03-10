@@ -58,16 +58,7 @@ export function ApolloProvider({ children }: ApolloProviderProps) {
           Query: {
             fields: {
               getDevelopers: {
-                keyArgs: ["filter", "sort"],
-                merge(existing, incoming, { args }) {
-                  if (!args?.paging?.page || args.paging.page === 1) {
-                    return incoming;
-                  }
-                  return {
-                    ...incoming,
-                    results: [...(existing?.results || []), ...incoming.results],
-                  };
-                },
+                keyArgs: ["filter", "sort", "paging"],
               },
             },
           },

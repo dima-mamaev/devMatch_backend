@@ -4,7 +4,7 @@ import Link from "next/link";
 
 interface ButtonProps {
   children: React.ReactNode;
-  variant?: "primary" | "secondary" | "outline" | "ghost" | "ghost-muted" | "link" | "gradient";
+  variant?: "primary" | "secondary" | "outline" | "ghost" | "ghost-muted" | "link" | "gradient" | "success";
   size?: "xs" | "sm" | "md" | "lg" | "icon";
   href?: string;
   className?: string;
@@ -23,6 +23,7 @@ const variants = {
   "ghost-muted": "text-slate-500 hover:text-slate-700",
   link: "text-indigo-600 hover:text-indigo-700",
   gradient: "text-white shadow-lg hover:opacity-90 bg-gradient-to-r from-indigo-600 to-violet-600",
+  success: "bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm",
 };
 
 const sizes = {
@@ -48,6 +49,14 @@ export function Button({
   const classes = `${baseStyles} ${variants[variant]} ${sizes[size]} ${className}`;
 
   if (href) {
+    const isExternal = href.startsWith("http") || href.startsWith("mailto:");
+    if (isExternal) {
+      return (
+        <a href={href} className={classes} target={href.startsWith("http") ? "_blank" : undefined} rel={href.startsWith("http") ? "noopener noreferrer" : undefined}>
+          {children}
+        </a>
+      );
+    }
     return (
       <Link href={href} className={classes}>
         {children}

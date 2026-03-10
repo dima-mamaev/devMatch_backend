@@ -1,12 +1,10 @@
+import { formatSeniorityLevel } from "@/lib/utils/developer";
+
 interface QuickStatsCardProps {
   seniorityLevel?: string | null;
   projectsCount: number;
   techStackCount: number;
   location?: string | null;
-}
-
-function formatSeniorityLevel(level: string) {
-  return level.replace(/_/g, " ");
 }
 
 export function QuickStatsCard({

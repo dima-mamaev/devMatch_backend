@@ -2,14 +2,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { BookmarkIcon } from "@/components/icons";
 import { useShortlist } from "@/hooks/useShortlist";
-
-const SENIORITY_YEARS: Record<string, string> = {
-  junior: "0-2 yrs",
-  mid: "2-4 yrs",
-  senior: "4-8 yrs",
-  lead: "8-12 yrs",
-  principal: "12+ yrs",
-};
+import { formatSeniorityLevel } from "@/lib/utils/developer";
 
 interface Developer {
   id: string;
@@ -40,11 +33,6 @@ function DevFeedCard({ developer }: DevFeedCardProps) {
 
   function getInitials(firstName: string, lastName: string) {
     return `${firstName?.[0] || ""}${lastName?.[0] || ""}`.toUpperCase() || "?";
-  }
-
-  function formatSeniorityLevel(level: string) {
-    const years = SENIORITY_YEARS[level.toLowerCase()];
-    return years ? `${years} exp` : level;
   }
 
   return (

@@ -1,4 +1,4 @@
-import { Args, ID, Query, Resolver } from '@nestjs/graphql';
+import { Args, ID, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
 import type { UUID } from 'crypto';
 import { Developer } from './models/developer.entity';
 import { DeveloperService } from './developer.service';
@@ -14,6 +14,16 @@ import { User } from '../user/models/user.entity';
 @Resolver(() => Developer)
 export class DeveloperQueryResolver {
   constructor(private readonly developerService: DeveloperService) {}
+
+  @ResolveField(() => String, { description: 'Developer email from associated user' })
+  async email(@Parent() developer: Developer): Promise<string> {
+    // User is already loaded via relations in findById
+    if (developer.user?.email) {
+      return developer.user.email;
+    }
+    const developerWithUser = await this.developerService.findById(developer.id);
+    return developerWithUser?.user?.email ?? '';
+  }
 
   // Public - anyone can view developers
   @Query(() => DeveloperConnection, { description: 'Get all developers with pagination and filtering' })
