@@ -74,23 +74,23 @@ export function HomeAIMatch() {
                           <p className="text-sm font-semibold text-slate-800">{dev.name}</p>
                           <p className="text-xs text-slate-400">{dev.skills}</p>
                         </div>
-                        <Button variant="outline" size="xs" className="py-1">
+                        <div className="px-3 py-1 bg-white border border-slate-200 text-slate-600 text-xs font-medium rounded-lg inline-flex items-center justify-center">
                           View
-                        </Button>
+                        </div>
                       </div>
                     )}
                   </div>
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <div className="flex-1 bg-slate-100 rounded-xl px-4 py-2.5">
+                <div className="flex-1 h-9 bg-slate-100 rounded-xl px-4 flex items-center">
                   <span className="text-sm text-slate-400">
                     Describe your ideal candidate...
                   </span>
                 </div>
-                <Button variant="primary" size="icon">
+                <div className="w-9 h-9 rounded-xl bg-indigo-600 text-white shadow-sm flex items-center justify-center shrink-0">
                   <ArrowRightIcon className="w-4 h-4" />
-                </Button>
+                </div>
               </div>
             </div>
           </div>

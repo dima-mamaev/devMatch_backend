@@ -3,6 +3,14 @@ import { Button } from "@/components/ui/Button";
 import { BookmarkIcon } from "@/components/icons";
 import { useShortlist } from "@/hooks/useShortlist";
 
+const SENIORITY_YEARS: Record<string, string> = {
+  junior: "0-2 yrs",
+  mid: "2-4 yrs",
+  senior: "4-8 yrs",
+  lead: "8-12 yrs",
+  principal: "12+ yrs",
+};
+
 interface Developer {
   id: string;
   firstName: string;
@@ -35,7 +43,8 @@ function DevFeedCard({ developer }: DevFeedCardProps) {
   }
 
   function formatSeniorityLevel(level: string) {
-    return level.replace(/_/g, " ");
+    const years = SENIORITY_YEARS[level.toLowerCase()];
+    return years ? `${years} exp` : level;
   }
 
   return (
@@ -100,11 +109,10 @@ function DevFeedCard({ developer }: DevFeedCardProps) {
         <button
           onClick={() => toggleShortlist(developer.id)}
           disabled={shortlistLoading}
-          className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-white transition-colors disabled:opacity-50 ${
-            isShortlisted
-              ? "bg-emerald-600 hover:bg-emerald-700"
-              : "bg-indigo-600 hover:bg-indigo-700"
-          }`}
+          className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-white transition-colors disabled:opacity-50 ${isShortlisted
+            ? "bg-emerald-600 hover:bg-emerald-700"
+            : "bg-indigo-600 hover:bg-indigo-700"
+            }`}
         >
           <BookmarkIcon className="w-3 h-3" />
           {isShortlisted ? "Shortlisted" : "Shortlist"}
