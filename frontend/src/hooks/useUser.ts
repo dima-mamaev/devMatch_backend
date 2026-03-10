@@ -24,45 +24,24 @@ export function useUser() {
   const profile = user?.profile ?? null;
 
   return {
-    // Loading state
     isLoading,
-
-    // Auth states (mutually exclusive when not loading)
     isGuest: !isLoading && !auth0Authenticated,
     isAuthenticated: !isLoading && !!user,
-
-    // Email verification (from Auth0)
     isEmailVerified: auth0User?.email_verified ?? false,
-
-    // User data
     user,
     profile,
-
-    // Role helpers
     isDeveloper: user?.role === "Developer",
     isRecruiter: user?.role === "Recruiter",
   };
 }
-
-/**
- * Check if user is a guest (not authenticated)
- */
 export function useIsGuest(): boolean {
   const { isGuest } = useUser();
   return isGuest;
 }
-
-/**
- * Check if user is authenticated
- */
 export function useIsAuthenticated(): boolean {
   const { isAuthenticated } = useUser();
   return isAuthenticated;
 }
-
-/**
- * Get developer profile (returns null if not a developer or not authenticated)
- */
 export function useDeveloperProfile(): Developer | null {
   const { isAuthenticated, isDeveloper, profile } = useUser();
   if (isAuthenticated && isDeveloper && profile) {
@@ -70,10 +49,6 @@ export function useDeveloperProfile(): Developer | null {
   }
   return null;
 }
-
-/**
- * Get recruiter profile (returns null if not a recruiter or not authenticated)
- */
 export function useRecruiterProfile(): Recruiter | null {
   const { isAuthenticated, isRecruiter, profile } = useUser();
   if (isAuthenticated && isRecruiter && profile) {
@@ -81,14 +56,8 @@ export function useRecruiterProfile(): Recruiter | null {
   }
   return null;
 }
-
-/**
- * Get current user (returns null if not authenticated)
- */
 export function useCurrentUser(): User | null {
   const { user } = useUser();
-  return user;
+  return user as any;
 }
-
-// Type exports for consumers
 export type UserState = ReturnType<typeof useUser>;
