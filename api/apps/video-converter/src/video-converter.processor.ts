@@ -72,7 +72,12 @@ export class VideoConverterProcessor extends WorkerHost {
         await unlink(tempOutputPath);
       } catch {
       }
-      throw err;
+
+      await this.videoConverterService.enqueueConvertedVideoFailed({
+        outputPath: '',
+        developerId,
+        videoMediaId,
+      });
     }
   }
 }

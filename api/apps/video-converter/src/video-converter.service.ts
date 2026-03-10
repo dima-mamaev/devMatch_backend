@@ -192,4 +192,8 @@ export class VideoConverterService {
   async enqueueConvertedVideoOutput(data: ConvertVideoOutputData) {
     return this.queue.add('ConvertVideoOutput', data);
   }
+
+  async enqueueConvertedVideoFailed(data: ConvertVideoOutputData) {
+    return this.queue.add('ConvertVideoFailed', data);
+  }
 }

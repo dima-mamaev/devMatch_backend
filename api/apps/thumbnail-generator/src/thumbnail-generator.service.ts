@@ -119,4 +119,8 @@ export class ThumbnailGeneratorService {
   async enqueueGenerateThumbnailOutput(data: GenerateThumbnailOutputData) {
     return this.queue.add('GenerateThumbnailOutput', data);
   }
+
+  async enqueueGenerateThumbnailFailed(data: GenerateThumbnailOutputData) {
+    return this.queue.add('GenerateThumbnailFailed', data);
+  }
 }

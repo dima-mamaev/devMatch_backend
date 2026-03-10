@@ -35,7 +35,11 @@ export class ThumbnailGeneratorProcessor extends WorkerHost {
         videoMediaId,
       });
     } catch (err) {
-      throw err;
+      await this.thumbnailGeneratorService.enqueueGenerateThumbnailFailed({
+        path: '',
+        developerId,
+        videoMediaId,
+      });
     }
   }
 }

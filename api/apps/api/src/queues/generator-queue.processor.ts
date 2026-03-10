@@ -1,4 +1,4 @@
-import { Processor, WorkerHost } from '@nestjs/bullmq';
+import { OnWorkerEvent, Processor, WorkerHost } from '@nestjs/bullmq';
 import type { Job } from 'bullmq';
 import { MediaService } from '../media/media.service';
 import { MediaType } from '../shared/enums/media-type.enum';
@@ -15,10 +15,12 @@ export class GeneratorQueueProcessor extends WorkerHost {
     super();
   }
 
-  process({ name, data }: Job<GenerateThumbnailOutputData>) {
+  async process({ name, data }: Job<GenerateThumbnailOutputData>) {
     switch (name) {
       case 'GenerateThumbnailOutput':
         return this.saveThumbnail(data);
+      case 'GenerateThumbnailFailed':
+        return this.handleThumbnailFailed(data);
       default:
         throw new Error(`Unknown job name: ${name}`);
     }
@@ -48,5 +50,23 @@ export class GeneratorQueueProcessor extends WorkerHost {
     }
 
     return createdMedia;
+  }
+
+  async handleThumbnailFailed(data: GenerateThumbnailOutputData) {
+    if (data.videoMediaId) {
+      await this.mediaService.updateProcessingStatus(
+        data.videoMediaId,
+        MediaProcessingStatus.Failed,
+      );
+    }
+  }
+
+  @OnWorkerEvent('failed')
+  onFailed(job: Job<GenerateThumbnailOutputData>) {
+    if (job.data.videoMediaId) {
+      this.mediaService
+        .updateProcessingStatus(job.data.videoMediaId, MediaProcessingStatus.Failed)
+        .catch(() => {});
+    }
   }
 }
