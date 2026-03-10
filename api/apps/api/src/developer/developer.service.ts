@@ -153,6 +153,11 @@ export class DeveloperService extends BasicService<Developer> {
     return (result.affected ?? 0) > 0;
   }
 
+  async hardDeleteDeveloper(developerId: UUID): Promise<boolean> {
+    const result = await this.repository.delete(developerId);
+    return (result.affected ?? 0) > 0;
+  }
+
   // Experience methods
   async addExperience(developerId: UUID, input: CreateExperienceInput): Promise<Experience> {
     const developer = await this.findById(developerId);

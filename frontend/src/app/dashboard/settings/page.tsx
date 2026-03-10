@@ -24,7 +24,6 @@ export default function SettingsPage() {
 
   const handleDeleteAccount = async () => {
     if (deleteInput !== "DELETE") return;
-
     setIsDeleting(true);
     try {
       await deleteAccount();

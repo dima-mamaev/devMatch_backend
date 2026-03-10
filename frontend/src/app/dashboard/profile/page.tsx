@@ -10,7 +10,7 @@ export default function ProfilePage() {
   const { isDeveloper } = useUser();
 
   return (
-    <ProtectedRoute requiredRoles={["Developer", "Recruiter"]}>
+    <ProtectedRoute requiredRoles={["Developer"]}>
       <DashboardLayout>
         {isDeveloper ? <DeveloperProfile /> : <RecruiterProfile />}
       </DashboardLayout>

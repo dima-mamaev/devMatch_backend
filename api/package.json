@@ -28,6 +28,8 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
+    "db:drop": "yarn typeorm schema:drop -d ./apps/api/src/ormconfig.ts",
+    "db:reset": "yarn db:drop && yarn db:sync",
     "db:sync": "yarn typeorm schema:sync -d ./apps/api/src/ormconfig.ts",
     "db:log": "yarn typeorm schema:log -d ./apps/api/src/ormconfig.ts",
     "db:create": "yarn typeorm migration:create",

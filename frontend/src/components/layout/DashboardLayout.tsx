@@ -32,7 +32,7 @@ const navItems: NavItem[] = [
   { href: "/dashboard/ai-match", label: "AI Match", icon: SparklesIcon },
   { href: "/dashboard/shortlist", label: "Shortlist", icon: BookmarkIcon },
   { href: "/dashboard/developers", label: "Developers", icon: UsersIcon },
-  { href: "/dashboard/profile", label: "Profile", icon: UserIcon, roles: ["Developer", "Recruiter"] },
+  { href: "/dashboard/profile", label: "Profile", icon: UserIcon, roles: ["Developer"] },
   { href: "/dashboard/settings", label: "Settings", icon: SettingsIcon, roles: ["Developer", "Recruiter"] },
 ];
 

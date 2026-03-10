@@ -34,7 +34,7 @@ export function ApolloProvider({ children }: ApolloProviderProps) {
           ? localStorage.getItem("devmatch_pending_role")
           : null;
         if (pendingRole) {
-          headers.set("X-User-Role", pendingRole === "recruiter" ? "Recruiter" : "Developer");
+          headers.set("X-User-Role", pendingRole);
         }
       } catch (error) {
         console.error("[Apollo] Error getting access token:", error);

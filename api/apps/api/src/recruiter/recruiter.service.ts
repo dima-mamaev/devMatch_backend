@@ -51,4 +51,9 @@ export class RecruiterService extends BasicService<Recruiter> {
     const result = await this.repository.softDelete(recruiterId);
     return (result.affected ?? 0) > 0;
   }
+
+  async hardDeleteRecruiter(recruiterId: UUID): Promise<boolean> {
+    const result = await this.repository.delete(recruiterId);
+    return (result.affected ?? 0) > 0;
+  }
 }

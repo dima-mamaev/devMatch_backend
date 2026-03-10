@@ -54,13 +54,13 @@ export class UserService extends BasicService<User> {
           await this.mediaService.deleteMedia(mediaToDelete);
         }
 
-        // Soft delete developer (experiences, projects, shortlists cascade via DB)
-        await this.developerService.softDeleteDeveloper(developer.id);
+        // Hard delete developer (experiences, projects, shortlists cascade via DB)
+        await this.developerService.hardDeleteDeveloper(developer.id);
       }
     } else if (user.role === UserRole.Recruiter) {
       const recruiter = await this.recruiterService.findByUserId(id);
       if (recruiter) {
-        await this.recruiterService.softDeleteRecruiter(recruiter.id);
+        await this.recruiterService.hardDeleteRecruiter(recruiter.id);
       }
     }
 
@@ -69,8 +69,8 @@ export class UserService extends BasicService<User> {
       id: user.auth0Id,
     });
 
-    // Soft delete user (shortlists cascade via DB)
-    await this.softRemove(user);
+    // Hard delete user
+    await this.delete({ id });
 
     return { affected: 1 };
   }
