@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
-import { SparklesIcon, SendIcon, StopIcon, RefreshIcon } from "@/components/icons";
+import { SparklesIcon, SendIcon, StopIcon, RefreshIcon, XIcon } from "@/components/icons";
 import { ChatMessage, ConnectionStatus } from "@/components/ai-match";
 import { useAIMatch } from "@/hooks/useAIMatch";
 import { useMutation } from "@apollo/client";
@@ -34,6 +34,7 @@ export default function AIMatchPage() {
     sendMessage,
     cancelCurrent,
     clearMessages,
+    clearError,
   } = useAIMatch();
 
   const [addToShortlist] = useMutation(ADD_TO_SHORTLIST);
@@ -150,8 +151,7 @@ export default function AIMatchPage() {
                 {userType && (
                   <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 rounded-full text-xs text-slate-600 mb-6">
                     {userType === "guest" && "Guest mode - limited features"}
-                    {userType === "authenticated" && "Free tier - 20 searches/day"}
-                    {userType === "recruiter" && "Pro tier - unlimited searches"}
+                    {userType === "authenticated" && "Signed in - 20 searches/day"}
                   </div>
                 )}
 
@@ -191,8 +191,15 @@ export default function AIMatchPage() {
 
         {/* Error banner */}
         {error && (
-          <div className="mx-6 mb-2 px-4 py-2 bg-red-50 border border-red-200 rounded-xl">
+          <div className="mx-6 mb-2 px-4 py-3 bg-red-50 border border-red-200 rounded-xl flex items-center justify-between gap-3">
             <p className="text-sm text-red-600">{error}</p>
+            <button
+              onClick={clearError}
+              className="shrink-0 p-1 text-red-400 hover:text-red-600 hover:bg-red-100 rounded-lg transition-colors"
+              aria-label="Dismiss error"
+            >
+              <XIcon className="w-4 h-4" />
+            </button>
           </div>
         )}
 
@@ -222,11 +229,10 @@ export default function AIMatchPage() {
                 <button
                   onClick={handleSubmit}
                   disabled={!prompt.trim() || isLoading || !sessionId}
-                  className={`w-11 h-11 rounded-xl flex items-center justify-center transition-colors ${
-                    prompt.trim() && !isLoading && sessionId
+                  className={`w-11 h-11 rounded-xl flex items-center justify-center transition-colors ${prompt.trim() && !isLoading && sessionId
                       ? "bg-indigo-600 text-white hover:bg-indigo-700"
                       : "bg-indigo-600 text-white opacity-40 cursor-not-allowed"
-                  }`}
+                    }`}
                 >
                   <SendIcon className="w-4 h-4" />
                 </button>

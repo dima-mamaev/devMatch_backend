@@ -450,7 +450,6 @@ export const AI_MATCH_START_SESSION = gql`
     aiMatchStartSession(input: $input) {
       sessionId
       userType
-      maxResults
       conversationHistory {
         id
         role

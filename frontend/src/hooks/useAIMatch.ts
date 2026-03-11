@@ -9,6 +9,7 @@ import {
   AI_MATCH_RATE_LIMIT_INFO,
   AI_MATCH_EVENTS,
 } from "@/lib/graphql/operations";
+import { useUser } from "./useUser";
 
 // Event types from the backend
 export type AIMatchEventType =
@@ -122,7 +123,6 @@ interface UseAIMatchReturn {
   error: string | null;
   rateLimitInfo: RateLimitInfo | null;
   userType: string | null;
-  maxResults: number;
 
   // Actions
   startSession: () => Promise<void>;
@@ -130,6 +130,7 @@ interface UseAIMatchReturn {
   cancelCurrent: () => Promise<void>;
   cancelAll: () => Promise<void>;
   clearMessages: (startFresh?: boolean) => void;
+  clearError: () => void;
 }
 
 export function useAIMatch(): UseAIMatchReturn {
@@ -139,7 +140,10 @@ export function useAIMatch(): UseAIMatchReturn {
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [userType, setUserType] = useState<string | null>(null);
-  const [maxResults, setMaxResults] = useState(10);
+
+  // Track auth state to detect login/logout
+  const { user, isLoading: authLoading } = useUser();
+  const prevUserIdRef = useRef<string | null | undefined>(undefined);
 
   // Track current message being processed
   const currentMessageIdRef = useRef<string | null>(null);
@@ -393,7 +397,6 @@ export function useAIMatch(): UseAIMatchReturn {
         const newSessionId = data.aiMatchStartSession.sessionId;
         setSessionId(newSessionId);
         setUserType(data.aiMatchStartSession.userType);
-        setMaxResults(data.aiMatchStartSession.maxResults);
 
         // Store sessionId in localStorage for persistence
         if (typeof window !== "undefined") {
@@ -447,6 +450,9 @@ export function useAIMatch(): UseAIMatchReturn {
           }));
           setMessages(restoredMessages);
         }
+
+        // Refetch rate limit for fresh data
+        refetchRateLimit();
       }
     } catch (err) {
       console.error("[AIMatch] Failed to start session:", err);
@@ -454,18 +460,19 @@ export function useAIMatch(): UseAIMatchReturn {
     } finally {
       setIsLoading(false);
     }
-  }, [startSessionMutation]);
+  }, [startSessionMutation, refetchRateLimit]);
 
   // Send message
   const sendMessage = useCallback(
     async (prompt: string) => {
       if (!sessionId || !prompt.trim()) return;
 
+      // Add user message to chat optimistically
+      const userMessageId = `user-${Date.now()}`;
+
       try {
         setError(null);
 
-        // Add user message to chat
-        const userMessageId = `user-${Date.now()}`;
         setMessages((prev) => [
           ...prev,
           {
@@ -477,7 +484,7 @@ export function useAIMatch(): UseAIMatchReturn {
         ]);
 
         // Send to backend
-        await sendMessageMutation({
+        const { errors } = await sendMessageMutation({
           variables: {
             input: {
               sessionId,
@@ -485,12 +492,63 @@ export function useAIMatch(): UseAIMatchReturn {
             },
           },
         });
-      } catch (err) {
+
+        // Handle GraphQL errors returned in result (Apollo doesn't throw by default)
+        if (errors?.length) {
+          throw errors[0];
+        }
+      } catch (err: unknown) {
         console.error("[AIMatch] Failed to send message:", err);
-        setError("Failed to send message. Please try again.");
+
+        // Remove the optimistically added user message
+        setMessages((prev) => prev.filter((msg) => msg.id !== userMessageId));
+
+        // Extract error message from GraphQL/Apollo error
+        let errorMessage = "Failed to send message. Please try again.";
+        let rawMessage = "";
+
+        // Try to get the error message from various sources
+        if (err instanceof Error) {
+          rawMessage = err.message;
+        }
+
+        // Check for GraphQL errors (Apollo error structure)
+        if (err && typeof err === "object") {
+          const apolloErr = err as {
+            graphQLErrors?: Array<{ message: string }>;
+            message?: string;
+          };
+
+          if (apolloErr.graphQLErrors?.length) {
+            rawMessage = apolloErr.graphQLErrors[0].message;
+          } else if (apolloErr.message) {
+            rawMessage = apolloErr.message;
+          }
+        }
+
+        // Check if it's a rate limit error
+        if (rawMessage.includes("Rate limit exceeded")) {
+          const resetMatch = rawMessage.match(/Limit resets at ([^.]+)/);
+          if (resetMatch) {
+            const resetTime = new Date(resetMatch[1]);
+            const formattedTime = resetTime.toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+            });
+            errorMessage = `You've reached your daily search limit. Try again after ${formattedTime}.`;
+          } else {
+            errorMessage = "You've reached your daily search limit. Please try again tomorrow.";
+          }
+          // Refetch rate limit to update UI
+          refetchRateLimit();
+        } else if (rawMessage) {
+          errorMessage = rawMessage;
+        }
+
+        setError(errorMessage);
       }
     },
-    [sessionId, sendMessageMutation]
+    [sessionId, sendMessageMutation, refetchRateLimit]
   );
 
   // Cancel current run
@@ -555,26 +613,63 @@ export function useAIMatch(): UseAIMatchReturn {
     }
   }, []);
 
-  // Auto-start session on mount
+  // Detect auth state changes (login/logout) and reset session
   useEffect(() => {
+    // Wait for auth to finish loading before tracking changes
+    if (authLoading) return;
+
+    const currentUserId = user?.id ?? null;
+
+    // On first render after auth loads, just set the ref
+    if (prevUserIdRef.current === undefined) {
+      prevUserIdRef.current = currentUserId;
+      return;
+    }
+
+    // If user ID changed (login or logout), reset session
+    if (prevUserIdRef.current !== currentUserId) {
+      prevUserIdRef.current = currentUserId;
+
+      // Clear local state
+      setMessages([]);
+      setSessionId(null);
+      currentMessageIdRef.current = null;
+
+      // Clear localStorage - backend will provide the right session
+      if (typeof window !== "undefined") {
+        localStorage.removeItem(AI_MATCH_SESSION_KEY);
+      }
+
+      // Refetch rate limit for new user context
+      refetchRateLimit();
+    }
+  }, [authLoading, user?.id, refetchRateLimit]);
+
+  // Auto-start session on mount (wait for auth to load)
+  useEffect(() => {
+    if (authLoading) return;
     if (!sessionId) {
       startSession();
     }
-  }, [sessionId, startSession]);
+  }, [sessionId, startSession, authLoading]);
+
+  const clearError = useCallback(() => {
+    setError(null);
+  }, []);
 
   return {
     sessionId,
     messages,
-    isLoading,
+    isLoading: isLoading || authLoading,
     isProcessing,
     error,
     rateLimitInfo: rateLimitData?.aiMatchRateLimitInfo || null,
     userType,
-    maxResults,
     startSession,
     sendMessage,
     cancelCurrent,
     cancelAll,
     clearMessages,
+    clearError,
   };
 }
