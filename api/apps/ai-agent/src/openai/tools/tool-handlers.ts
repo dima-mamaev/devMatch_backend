@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, SelectQueryBuilder } from 'typeorm';
 import { Developer } from '../../../../../libs/shared/src/entities/developer.entity.js';
 import type {
   DeveloperSearchParams,
@@ -58,6 +58,15 @@ export class ToolHandlers {
     private developerRepository: Repository<Developer>,
   ) { }
 
+  private createBaseDeveloperQuery(): SelectQueryBuilder<Developer> {
+    return this.developerRepository
+      .createQueryBuilder('developer')
+      .leftJoinAndSelect('developer.experiences', 'experiences')
+      .leftJoinAndSelect('developer.projects', 'projects')
+      .leftJoin('media', 'media', 'developer."profilePhotoId" = media.id')
+      .addSelect('media.url', 'profilePhotoUrl');
+  }
+
   async execute(toolName: string, args: Record<string, any>): Promise<unknown> {
     switch (toolName) {
       case 'search_by_role':
@@ -89,12 +98,7 @@ export class ToolHandlers {
       ),
     );
 
-    const query = this.developerRepository
-      .createQueryBuilder('developer')
-      .leftJoinAndSelect('developer.experiences', 'experiences')
-      .leftJoinAndSelect('developer.projects', 'projects')
-      .leftJoin('media', 'media', 'developer."profilePhotoId" = media.id')
-      .addSelect('media.url', 'profilePhotoUrl')
+    const query = this.createBaseDeveloperQuery()
       .where('developer.onboardingCompleted = :completed', { completed: true });
 
     const orConditions: string[] = [];
@@ -150,12 +154,7 @@ export class ToolHandlers {
   private async searchDevelopers(
     params: DeveloperSearchParams,
   ): Promise<DeveloperProfile[]> {
-    const query = this.developerRepository
-      .createQueryBuilder('developer')
-      .leftJoinAndSelect('developer.experiences', 'experiences')
-      .leftJoinAndSelect('developer.projects', 'projects')
-      .leftJoin('media', 'media', 'developer."profilePhotoId" = media.id')
-      .addSelect('media.url', 'profilePhotoUrl')
+    const query = this.createBaseDeveloperQuery()
       .where('developer.onboardingCompleted = :completed', { completed: true });
 
     if (params.techStack?.length) {
@@ -206,12 +205,7 @@ export class ToolHandlers {
   private async getDeveloperDetails(
     developerId: string,
   ): Promise<DeveloperProfile | null> {
-    const result = await this.developerRepository
-      .createQueryBuilder('developer')
-      .leftJoinAndSelect('developer.experiences', 'experiences')
-      .leftJoinAndSelect('developer.projects', 'projects')
-      .leftJoin('media', 'media', 'developer."profilePhotoId" = media.id')
-      .addSelect('media.url', 'profilePhotoUrl')
+    const result = await this.createBaseDeveloperQuery()
       .where('developer.id = :id', { id: developerId })
       .getRawAndEntities();
 

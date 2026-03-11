@@ -37,15 +37,6 @@
         "tsConfigPath": "apps/ai-agent/tsconfig.app.json"
       }
     },
-    "cron": {
-      "type": "application",
-      "root": "apps/cron",
-      "entryFile": "main",
-      "sourceRoot": "apps/cron/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/cron/tsconfig.app.json"
-      }
-    },
     "shared": {
       "type": "library",
       "root": "libs/shared",

@@ -8,6 +8,8 @@ interface MatchingRequest {
   messageId: string;
   prompt: string;
   threadId?: string;
+  excludeIds?: string[];
+  maxResults?: number;
 }
 
 interface MatchingResponse {

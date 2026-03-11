@@ -1,19 +1,29 @@
-import { Injectable, OnModuleDestroy } from '@nestjs/common';
+import { Injectable, Logger, OnModuleDestroy } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Redis from 'ioredis';
+import OpenAI from 'openai';
 import { randomUUID } from 'crypto';
 import { SessionState, ConversationMessage } from './session.types.js';
 
 @Injectable()
 export class SessionService implements OnModuleDestroy {
+  private readonly logger = new Logger(SessionService.name);
   private redis: Redis;
+  private openai: OpenAI | null = null;
   private readonly SESSION_TTL = 60 * 60 * 2;
+  // Track user threads separately with longer TTL (7 days) to cleanup on next visit
+  private readonly USER_THREAD_TTL = 60 * 60 * 24 * 7;
 
   constructor(private configService: ConfigService) {
     this.redis = new Redis({
       host: this.configService.get('REDIS_HOST', 'localhost'),
       port: this.configService.get('REDIS_PORT', 6379),
     });
+
+    const apiKey = this.configService.get('OPENAI_API_KEY');
+    if (apiKey) {
+      this.openai = new OpenAI({ apiKey });
+    }
   }
 
   async getOrCreateSession(
@@ -26,6 +36,10 @@ export class SessionService implements OnModuleDestroy {
         await this.touchSession(userSession.sessionId);
         return userSession;
       }
+
+      // User's session expired - cleanup their old thread if tracked
+      await this.cleanupUserThread(userId);
+
       const newSessionId = randomUUID();
       const session: SessionState = {
         sessionId: newSessionId,
@@ -142,6 +156,15 @@ export class SessionService implements OnModuleDestroy {
     if (session) {
       session.threadId = threadId;
       await this.saveSession(session);
+
+      // Track thread separately for authenticated users (for cleanup on next visit)
+      if (session.userId && threadId) {
+        await this.redis.setex(
+          `ai-match:user-thread:${session.userId}`,
+          this.USER_THREAD_TTL,
+          threadId,
+        );
+      }
     }
   }
 
@@ -151,9 +174,40 @@ export class SessionService implements OnModuleDestroy {
 
   async deleteSession(sessionId: string): Promise<void> {
     const session = await this.getSession(sessionId);
+    if (!session) return;
+
+    // Delete OpenAI thread
+    if (session.threadId) {
+      await this.deleteOpenAIThread(session.threadId);
+    }
+
+    // Clean up Redis keys
     await this.redis.del(`ai-match:session:${sessionId}`);
-    if (session?.userId) {
+    if (session.userId) {
       await this.redis.del(`ai-match:user-session:${session.userId}`);
+      await this.redis.del(`ai-match:user-thread:${session.userId}`);
+    }
+  }
+
+  private async cleanupUserThread(userId: string): Promise<void> {
+    const oldThreadId = await this.redis.get(`ai-match:user-thread:${userId}`);
+    if (oldThreadId) {
+      await this.deleteOpenAIThread(oldThreadId);
+      await this.redis.del(`ai-match:user-thread:${userId}`);
+    }
+  }
+
+  private async deleteOpenAIThread(threadId: string): Promise<void> {
+    if (!this.openai) return;
+
+    try {
+      await this.openai.beta.threads.delete(threadId);
+      this.logger.debug(`Deleted OpenAI thread: ${threadId}`);
+    } catch (error) {
+      // Thread may already be deleted or not exist
+      this.logger.warn(
+        `Failed to delete OpenAI thread ${threadId}: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      );
     }
   }
 

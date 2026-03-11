@@ -75,7 +75,6 @@ type AIMatchResult {
 }
 
 input AIMatchSendInput {
-  excludeDeveloperIds: [String!]
   prompt: String!
   sessionId: String!
 }
@@ -100,12 +99,14 @@ enum AvailabilityStatus {
 type ConversationMatchDeveloper {
   availabilityStatus: String
   bio: String
+  experiences: [AIMatchDeveloperExperience!]
   firstName: String!
   id: String!
   jobTitle: String
   lastName: String!
   location: String
   profilePhotoUrl: String
+  projects: [AIMatchDeveloperProject!]
   seniorityLevel: String
   techStack: [String!]!
 }
