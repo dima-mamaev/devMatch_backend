@@ -46,7 +46,6 @@ type Developer {
   githubUrl: String
   id: ID!
   introVideo: Media
-  introVideoThumbnail: Media
   jobTitle: String
   lastName: String!
   linkedinUrl: String
@@ -143,7 +142,7 @@ type Mutation {
   """Delete work experience"""
   deleteExperience(id: ID!): Boolean!
 
-  """Delete intro video and thumbnail"""
+  """Delete intro video"""
   deleteIntroVideo: Boolean!
 
   """Delete profile photo"""

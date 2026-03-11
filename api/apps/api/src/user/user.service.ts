@@ -43,9 +43,6 @@ export class UserService extends BasicService<User> {
         if (developer.introVideo) {
           mediaToDelete.push(developer.introVideo.id);
         }
-        if (developer.introVideoThumbnail) {
-          mediaToDelete.push(developer.introVideoThumbnail.id);
-        }
         if (mediaToDelete.length > 0) {
           await this.mediaService.deleteMedia(mediaToDelete);
         }

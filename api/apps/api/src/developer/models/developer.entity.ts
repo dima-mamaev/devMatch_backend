@@ -93,11 +93,6 @@ export class Developer extends BasicEntity {
   @JoinColumn()
   introVideo?: Media;
 
-  @Field(() => Media, { nullable: true })
-  @OneToOne(() => Media, { nullable: true, onDelete: 'SET NULL' })
-  @JoinColumn()
-  introVideoThumbnail?: Media;
-
   @Field(() => Boolean)
   @Column({ default: false })
   onboardingCompleted: boolean;

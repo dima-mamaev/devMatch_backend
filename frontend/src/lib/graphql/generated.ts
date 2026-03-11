@@ -15,12 +15,12 @@ export type Scalars = {
   Boolean: { input: boolean; output: boolean; }
   Int: { input: number; output: number; }
   Float: { input: number; output: number; }
-  /** Custom upload scalar type */
-  CustomUpload: { input: File; output: File; }
   /** A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format. */
   DateTime: { input: string; output: string; }
   /** The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf). */
   JSON: { input: Record<string, unknown>; output: Record<string, unknown>; }
+  /** File upload scalar type */
+  Upload: { input: any; output: any; }
 };
 
 /** Developer availability status */
@@ -28,11 +28,6 @@ export type AvailabilityStatus =
   | 'Available'
   | 'NotAvailable'
   | 'OpenToOffers';
-
-export type ChangePasswordInput = {
-  confirm: Scalars['String']['input'];
-  password: Scalars['String']['input'];
-};
 
 export type CreateExperienceInput = {
   companyName: Scalars['String']['input'];
@@ -53,10 +48,6 @@ export type DeleteResult = {
   affected?: Maybe<Scalars['Float']['output']>;
 };
 
-export type DeleteUserInput = {
-  id: Scalars['ID']['input'];
-};
-
 /** Developer */
 export type Developer = {
   availabilityStatus?: Maybe<AvailabilityStatus>;
@@ -69,7 +60,6 @@ export type Developer = {
   githubUrl?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   introVideo?: Maybe<Media>;
-  introVideoThumbnail?: Maybe<Media>;
   jobTitle?: Maybe<Scalars['String']['output']>;
   lastName: Scalars['String']['output'];
   linkedinUrl?: Maybe<Scalars['String']['output']>;
@@ -118,10 +108,6 @@ export type Experience = {
   startYear: Scalars['Int']['output'];
 };
 
-export type GetUserInput = {
-  id: Scalars['ID']['input'];
-};
-
 /** Media */
 export type Media = {
   id: Scalars['ID']['output'];
@@ -156,7 +142,7 @@ export type Mutation = {
   createRecruiterProfile: Recruiter;
   /** Delete work experience */
   deleteExperience: Scalars['Boolean']['output'];
-  /** Delete intro video and thumbnail */
+  /** Delete intro video */
   deleteIntroVideo: Scalars['Boolean']['output'];
   /** Delete profile photo */
   deleteProfilePhoto: Scalars['Boolean']['output'];
@@ -243,12 +229,12 @@ export type MutationUpdateRecruiterProfileArgs = {
 
 
 export type MutationUploadIntroVideoArgs = {
-  file: Scalars['CustomUpload']['input'];
+  file: Scalars['Upload']['input'];
 };
 
 
 export type MutationUploadProfilePhotoArgs = {
-  file: Scalars['CustomUpload']['input'];
+  file: Scalars['Upload']['input'];
 };
 
 export type PagingInput = {
@@ -373,16 +359,6 @@ export type UpdateRecruiterInput = {
   lastName?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type UpdateUserInput = {
-  id: Scalars['ID']['input'];
-  status: UserStatus;
-};
-
-export type UpdateUserRoleInput = {
-  id: Scalars['ID']['input'];
-  role: UserRole;
-};
-
 /** User */
 export type User = {
   authProvider: Scalars['String']['output'];
@@ -396,70 +372,14 @@ export type User = {
   status: UserStatus;
 };
 
-export type UserFilterInput = {
-  search?: InputMaybe<Scalars['String']['input']>;
-};
-
 export type UserMutation = {
-  /** Change own password */
-  changePassword: User;
-  /** Delete user (Admin only) */
-  delete: DeleteResult;
   /** Delete self */
   deleteMe: DeleteResult;
-  /** Update user status (Admin only) */
-  update: User;
-  /** Update user role (Admin only) */
-  updateRole: User;
-};
-
-
-export type UserMutationChangePasswordArgs = {
-  input: ChangePasswordInput;
-};
-
-
-export type UserMutationDeleteArgs = {
-  input: DeleteUserInput;
-};
-
-
-export type UserMutationUpdateArgs = {
-  input: UpdateUserInput;
-};
-
-
-export type UserMutationUpdateRoleArgs = {
-  input: UpdateUserRoleInput;
-};
-
-/** User paging result */
-export type UserPagingResult = {
-  limit?: Maybe<Scalars['Float']['output']>;
-  page?: Maybe<Scalars['Float']['output']>;
-  results: Array<User>;
-  total?: Maybe<Scalars['Float']['output']>;
 };
 
 export type UserQuery = {
   /** Get current user */
   getMe: User;
-  /** Get user by id (Admin only) */
-  getUser: User;
-  /** Get users with filtering, sorting and paging (Admin only) */
-  getUsers: UserPagingResult;
-};
-
-
-export type UserQueryGetUserArgs = {
-  input: GetUserInput;
-};
-
-
-export type UserQueryGetUsersArgs = {
-  filter?: InputMaybe<UserFilterInput>;
-  paging?: InputMaybe<PagingInput>;
-  sort?: InputMaybe<UserSortInput>;
 };
 
 /** User role */
@@ -467,14 +387,6 @@ export type UserRole =
   | 'Admin'
   | 'Developer'
   | 'Recruiter';
-
-export type UserSortInput = {
-  email?: InputMaybe<Sort>;
-  id?: InputMaybe<Sort>;
-  name?: InputMaybe<Sort>;
-  role?: InputMaybe<Sort>;
-  status?: InputMaybe<Sort>;
-};
 
 /** User status */
 export type UserStatus =
@@ -486,21 +398,21 @@ export type GetMeQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type GetMeQuery = { user: { getMe: { id: string, email: string, role: UserRole, status: UserStatus, authProvider: string, createdAt: string, profile?:
-        | { id: string, firstName: string, lastName: string, createdAt: string, jobTitle?: string | null, bio?: string | null, location?: string | null, seniorityLevel?: SeniorityLevel | null, availabilityStatus?: AvailabilityStatus | null, techStack: Array<string>, githubUrl?: string | null, linkedinUrl?: string | null, personalSiteUrl?: string | null, onboardingCompleted: boolean, profilePhoto?: { id: string, url: string, type: MediaType } | null, introVideo?: { id: string, url: string, type: MediaType, processingStatus?: MediaProcessingStatus | null } | null, introVideoThumbnail?: { id: string, url: string, type: MediaType } | null, experiences: Array<{ id: string, companyName: string, position: string, startYear: number, endYear?: number | null, description?: string | null }>, projects: Array<{ id: string, name: string, description?: string | null, url?: string | null, techStack: Array<string> }> }
+        | { id: string, firstName: string, lastName: string, createdAt: string, jobTitle?: string | null, bio?: string | null, location?: string | null, seniorityLevel?: SeniorityLevel | null, availabilityStatus?: AvailabilityStatus | null, techStack: Array<string>, githubUrl?: string | null, linkedinUrl?: string | null, personalSiteUrl?: string | null, onboardingCompleted: boolean, profilePhoto?: { id: string, url: string, type: MediaType } | null, introVideo?: { id: string, url: string, type: MediaType, processingStatus?: MediaProcessingStatus | null } | null, experiences: Array<{ id: string, companyName: string, position: string, startYear: number, endYear?: number | null, description?: string | null }>, projects: Array<{ id: string, name: string, description?: string | null, url?: string | null, techStack: Array<string> }> }
         | { id: string, email: string, firstName: string, lastName: string, createdAt: string }
        | null } } };
 
 export type GetMyDeveloperProfileQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetMyDeveloperProfileQuery = { getMyDeveloperProfile?: { id: string, firstName: string, lastName: string, createdAt: string, jobTitle?: string | null, bio?: string | null, location?: string | null, seniorityLevel?: SeniorityLevel | null, availabilityStatus?: AvailabilityStatus | null, techStack: Array<string>, githubUrl?: string | null, linkedinUrl?: string | null, personalSiteUrl?: string | null, onboardingCompleted: boolean, profilePhoto?: { id: string, url: string, type: MediaType } | null, introVideo?: { id: string, url: string, type: MediaType, processingStatus?: MediaProcessingStatus | null } | null, introVideoThumbnail?: { id: string, url: string, type: MediaType } | null, experiences: Array<{ id: string, companyName: string, position: string, startYear: number, endYear?: number | null, description?: string | null }>, projects: Array<{ id: string, name: string, description?: string | null, url?: string | null, techStack: Array<string> }> } | null };
+export type GetMyDeveloperProfileQuery = { getMyDeveloperProfile?: { id: string, firstName: string, lastName: string, createdAt: string, jobTitle?: string | null, bio?: string | null, location?: string | null, seniorityLevel?: SeniorityLevel | null, availabilityStatus?: AvailabilityStatus | null, techStack: Array<string>, githubUrl?: string | null, linkedinUrl?: string | null, personalSiteUrl?: string | null, onboardingCompleted: boolean, profilePhoto?: { id: string, url: string, type: MediaType } | null, introVideo?: { id: string, url: string, type: MediaType, processingStatus?: MediaProcessingStatus | null } | null, experiences: Array<{ id: string, companyName: string, position: string, startYear: number, endYear?: number | null, description?: string | null }>, projects: Array<{ id: string, name: string, description?: string | null, url?: string | null, techStack: Array<string> }> } | null };
 
 export type GetDeveloperQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type GetDeveloperQuery = { getDeveloper?: { id: string, email: string, firstName: string, lastName: string, jobTitle?: string | null, bio?: string | null, location?: string | null, seniorityLevel?: SeniorityLevel | null, availabilityStatus?: AvailabilityStatus | null, techStack: Array<string>, githubUrl?: string | null, linkedinUrl?: string | null, personalSiteUrl?: string | null, profilePhoto?: { id: string, url: string, type: MediaType } | null, introVideo?: { id: string, url: string, type: MediaType, processingStatus?: MediaProcessingStatus | null } | null, introVideoThumbnail?: { id: string, url: string, type: MediaType } | null, experiences: Array<{ id: string, companyName: string, position: string, startYear: number, endYear?: number | null, description?: string | null }>, projects: Array<{ id: string, name: string, description?: string | null, url?: string | null, techStack: Array<string> }> } | null };
+export type GetDeveloperQuery = { getDeveloper?: { id: string, email: string, firstName: string, lastName: string, jobTitle?: string | null, bio?: string | null, location?: string | null, seniorityLevel?: SeniorityLevel | null, availabilityStatus?: AvailabilityStatus | null, techStack: Array<string>, githubUrl?: string | null, linkedinUrl?: string | null, personalSiteUrl?: string | null, profilePhoto?: { id: string, url: string, type: MediaType } | null, introVideo?: { id: string, url: string, type: MediaType, processingStatus?: MediaProcessingStatus | null } | null, experiences: Array<{ id: string, companyName: string, position: string, startYear: number, endYear?: number | null, description?: string | null }>, projects: Array<{ id: string, name: string, description?: string | null, url?: string | null, techStack: Array<string> }> } | null };
 
 export type GetDevelopersQueryVariables = Exact<{
   filter?: InputMaybe<DeveloperFilterInput>;
@@ -509,7 +421,7 @@ export type GetDevelopersQueryVariables = Exact<{
 }>;
 
 
-export type GetDevelopersQuery = { getDevelopers: { total: number, page?: number | null, limit?: number | null, results: Array<{ id: string, email: string, firstName: string, lastName: string, jobTitle?: string | null, bio?: string | null, location?: string | null, seniorityLevel?: SeniorityLevel | null, availabilityStatus?: AvailabilityStatus | null, techStack: Array<string>, githubUrl?: string | null, linkedinUrl?: string | null, profilePhoto?: { id: string, url: string, type: MediaType } | null, introVideo?: { id: string, url: string } | null, introVideoThumbnail?: { id: string, url: string } | null }> } };
+export type GetDevelopersQuery = { getDevelopers: { total: number, page?: number | null, limit?: number | null, results: Array<{ id: string, email: string, firstName: string, lastName: string, jobTitle?: string | null, bio?: string | null, location?: string | null, seniorityLevel?: SeniorityLevel | null, availabilityStatus?: AvailabilityStatus | null, techStack: Array<string>, githubUrl?: string | null, linkedinUrl?: string | null, profilePhoto?: { id: string, url: string, type: MediaType } | null, introVideo?: { id: string, url: string } | null }> } };
 
 export type GetMyRecruiterProfileQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -594,7 +506,7 @@ export type DeleteProjectMutationVariables = Exact<{
 export type DeleteProjectMutation = { deleteProject: boolean };
 
 export type UploadProfilePhotoMutationVariables = Exact<{
-  file: Scalars['CustomUpload']['input'];
+  file: Scalars['Upload']['input'];
 }>;
 
 
@@ -606,7 +518,7 @@ export type DeleteProfilePhotoMutationVariables = Exact<{ [key: string]: never; 
 export type DeleteProfilePhotoMutation = { deleteProfilePhoto: boolean };
 
 export type UploadIntroVideoMutationVariables = Exact<{
-  file: Scalars['CustomUpload']['input'];
+  file: Scalars['Upload']['input'];
 }>;
 
 
@@ -690,11 +602,6 @@ export const GetMeDocument = gql`
             url
             type
             processingStatus
-          }
-          introVideoThumbnail {
-            id
-            url
-            type
           }
           experiences {
             id
@@ -787,11 +694,6 @@ export const GetMyDeveloperProfileDocument = gql`
       type
       processingStatus
     }
-    introVideoThumbnail {
-      id
-      url
-      type
-    }
     experiences {
       id
       companyName
@@ -872,11 +774,6 @@ export const GetDeveloperDocument = gql`
       type
       processingStatus
     }
-    introVideoThumbnail {
-      id
-      url
-      type
-    }
     experiences {
       id
       companyName
@@ -956,10 +853,6 @@ export const GetDevelopersDocument = gql`
         type
       }
       introVideo {
-        id
-        url
-      }
-      introVideoThumbnail {
         id
         url
       }
@@ -1452,7 +1345,7 @@ export type DeleteProjectMutationHookResult = ReturnType<typeof useDeleteProject
 export type DeleteProjectMutationResult = Apollo.MutationResult<DeleteProjectMutation>;
 export type DeleteProjectMutationOptions = Apollo.BaseMutationOptions<DeleteProjectMutation, DeleteProjectMutationVariables>;
 export const UploadProfilePhotoDocument = gql`
-    mutation UploadProfilePhoto($file: CustomUpload!) {
+    mutation UploadProfilePhoto($file: Upload!) {
   uploadProfilePhoto(file: $file) {
     id
     url
@@ -1517,7 +1410,7 @@ export type DeleteProfilePhotoMutationHookResult = ReturnType<typeof useDeletePr
 export type DeleteProfilePhotoMutationResult = Apollo.MutationResult<DeleteProfilePhotoMutation>;
 export type DeleteProfilePhotoMutationOptions = Apollo.BaseMutationOptions<DeleteProfilePhotoMutation, DeleteProfilePhotoMutationVariables>;
 export const UploadIntroVideoDocument = gql`
-    mutation UploadIntroVideo($file: CustomUpload!) {
+    mutation UploadIntroVideo($file: Upload!) {
   uploadIntroVideo(file: $file)
 }
     `;

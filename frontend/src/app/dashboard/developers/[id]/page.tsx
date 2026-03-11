@@ -102,7 +102,6 @@ export default function DeveloperProfilePage() {
           <div className="flex-1 space-y-5">
             <IntroVideoCard
               videoUrl={developer.introVideo?.url}
-              thumbnailUrl={developer.introVideoThumbnail?.url}
               processingStatus={developer.introVideo?.processingStatus}
             />
             <AboutCard bio={developer.bio || ""} />

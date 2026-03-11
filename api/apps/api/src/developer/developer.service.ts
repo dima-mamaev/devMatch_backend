@@ -33,14 +33,14 @@ export class DeveloperService extends BasicService<Developer> {
   async findByUserId(userId: UUID): Promise<Developer | null> {
     return this.repository.findOne({
       where: { user: { id: userId } },
-      relations: ['user', 'profilePhoto', 'introVideo', 'introVideoThumbnail', 'experiences', 'projects'],
+      relations: ['user', 'profilePhoto', 'introVideo', 'experiences', 'projects'],
     });
   }
 
   async findById(id: UUID): Promise<Developer | null> {
     return this.repository.findOne({
       where: { id },
-      relations: ['user', 'profilePhoto', 'introVideo', 'introVideoThumbnail', 'experiences', 'projects'],
+      relations: ['user', 'profilePhoto', 'introVideo', 'experiences', 'projects'],
     });
   }
 
@@ -83,7 +83,6 @@ export class DeveloperService extends BasicService<Developer> {
       .leftJoinAndSelect('developer.user', 'user')
       .leftJoinAndSelect('developer.profilePhoto', 'profilePhoto')
       .leftJoinAndSelect('developer.introVideo', 'introVideo')
-      .leftJoinAndSelect('developer.introVideoThumbnail', 'introVideoThumbnail')
       .leftJoinAndSelect('developer.experiences', 'experiences')
       .leftJoinAndSelect('developer.projects', 'projects');
 
@@ -234,12 +233,10 @@ export class DeveloperService extends BasicService<Developer> {
     return this.findById(developerId) as Promise<Developer>;
   }
 
-  async updateIntroVideo(developerId: UUID, mediaId: UUID | null, thumbnailId?: UUID | null): Promise<Developer> {
-    const updateData: any = { introVideo: mediaId ? { id: mediaId } : null };
-    if (thumbnailId !== undefined) {
-      updateData.introVideoThumbnail = thumbnailId ? { id: thumbnailId } : null;
-    }
-    await this.repository.update(developerId, updateData);
+  async updateIntroVideo(developerId: UUID, mediaId: UUID | null): Promise<Developer> {
+    await this.repository.update(developerId, {
+      introVideo: mediaId ? { id: mediaId } : null,
+    } as any);
     return this.findById(developerId) as Promise<Developer>;
   }
 }

@@ -129,9 +129,6 @@ export class DeveloperMutationResolver {
     if (developer.introVideo) {
       await this.mediaService.deleteMedia([developer.introVideo.id]);
     }
-    if (developer.introVideoThumbnail) {
-      await this.mediaService.deleteMedia([developer.introVideoThumbnail.id]);
-    }
     const publicId = `${developer.id}_${Date.now()}`;
     const url = await this.cloudinaryService.uploadVideo(
       publicId,
@@ -158,7 +155,7 @@ export class DeveloperMutationResolver {
     return true;
   }
 
-  @Mutation(() => Boolean, { description: 'Delete intro video and thumbnail' })
+  @Mutation(() => Boolean, { description: 'Delete intro video' })
   @Roles([UserRole.Developer])
   async deleteIntroVideo(@ActiveUser() user: User): Promise<boolean> {
     const developer = await this.getDeveloperOrFail(user.id);
@@ -166,10 +163,7 @@ export class DeveloperMutationResolver {
     if (developer.introVideo) {
       await this.mediaService.deleteMedia([developer.introVideo.id]);
     }
-    if (developer.introVideoThumbnail) {
-      await this.mediaService.deleteMedia([developer.introVideoThumbnail.id]);
-    }
-    await this.developerService.updateIntroVideo(developer.id, null, null);
+    await this.developerService.updateIntroVideo(developer.id, null);
 
     return true;
   }

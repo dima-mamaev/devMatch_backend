@@ -1,14 +1,13 @@
 import { VideoPlayer } from "./VideoPlayer";
+import { getVideoThumbnailUrl } from "@/lib/utils/cloudinary";
 
 interface IntroVideoCardProps {
   videoUrl?: string | null;
-  thumbnailUrl?: string | null;
   processingStatus?: string | null;
 }
 
 export function IntroVideoCard({
   videoUrl,
-  thumbnailUrl,
   processingStatus,
 }: IntroVideoCardProps) {
   if (videoUrl && processingStatus === "Ready") {
@@ -16,7 +15,7 @@ export function IntroVideoCard({
       <div className="flex justify-center">
         <VideoPlayer
           url={videoUrl}
-          thumbnail={thumbnailUrl}
+          thumbnail={getVideoThumbnailUrl(videoUrl)}
           aspectRatio="portrait"
           className="bg-slate-900 border border-slate-200 rounded-2xl shadow-lg h-125"
         />

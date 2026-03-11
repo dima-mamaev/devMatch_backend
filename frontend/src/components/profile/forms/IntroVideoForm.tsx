@@ -3,20 +3,20 @@
 import { useRef, useState, useEffect } from "react";
 import { PlayIcon, VideoIcon, XIcon } from "@/components/icons";
 import { Media } from "@/lib/graphql/generated";
+import { getVideoThumbnailUrl } from "@/lib/utils/cloudinary";
 
 interface IntroVideoFormProps {
   introVideo: Pick<Media, "id" | "url" | "processingStatus"> | null;
-  introVideoThumbnail: Pick<Media, "id" | "url"> | null;
   onUpload: (file: File) => Promise<void>;
   isUploading?: boolean;
 }
 
 export function IntroVideoForm({
   introVideo,
-  introVideoThumbnail,
   onUpload,
   isUploading = false,
 }: IntroVideoFormProps) {
+  const thumbnailUrl = getVideoThumbnailUrl(introVideo?.url);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isWaitingForProcessing, setIsWaitingForProcessing] = useState(false);
@@ -88,9 +88,9 @@ export function IntroVideoForm({
             </>
           ) : (
             <>
-              {introVideoThumbnail ? (
+              {thumbnailUrl ? (
                 <img
-                  src={introVideoThumbnail.url}
+                  src={thumbnailUrl}
                   alt="Video thumbnail"
                   className="absolute inset-0 w-full h-full object-cover"
                 />

@@ -27,28 +27,6 @@ export class SeedDevelopers1710000000000 implements MigrationInterface {
       ('11111111-0001-4000-8000-000000000017', 'Video', 'https://res.cloudinary.com/dv9imdnu9/video/upload/v1773133292/ssstik.io__amazonwebservices_1773132961838_kz9qix.mp4', 'Ready', NOW(), NOW())
     `);
 
-    // Insert Media records for video thumbnails (auto-generated from video URLs via Cloudinary)
-    await queryRunner.query(`
-      INSERT INTO media (id, type, url, "processingStatus", "createdAt", "updatedAt") VALUES
-      ('22222222-0001-4000-8000-000000000001', 'Image', 'https://res.cloudinary.com/dv9imdnu9/video/upload/so_0/v1773133298/ssstik.io__umacodes_1773132716022_lecytt.jpg', 'Ready', NOW(), NOW()),
-      ('22222222-0001-4000-8000-000000000002', 'Image', 'https://res.cloudinary.com/dv9imdnu9/video/upload/so_0/v1773133298/ssstik.io__transferpilot_1773133201258_gtfrog.jpg', 'Ready', NOW(), NOW()),
-      ('22222222-0001-4000-8000-000000000003', 'Image', 'https://res.cloudinary.com/dv9imdnu9/video/upload/so_0/v1773133297/ssstik.io__webappcode_1773132670025_zctbvk.jpg', 'Ready', NOW(), NOW()),
-      ('22222222-0001-4000-8000-000000000004', 'Image', 'https://res.cloudinary.com/dv9imdnu9/video/upload/so_0/v1773133297/ssstik.io__tembrasdev_1773133174147_oiz2op.jpg', 'Ready', NOW(), NOW()),
-      ('22222222-0001-4000-8000-000000000005', 'Image', 'https://res.cloudinary.com/dv9imdnu9/video/upload/so_0/v1773133296/ssstik.io__educativeinc_1773132856207_la7yzn.jpg', 'Ready', NOW(), NOW()),
-      ('22222222-0001-4000-8000-000000000006', 'Image', 'https://res.cloudinary.com/dv9imdnu9/video/upload/so_0/v1773133296/ssstik.io__mystic.js_1773132588805_xgnya4.jpg', 'Ready', NOW(), NOW()),
-      ('22222222-0001-4000-8000-000000000007', 'Image', 'https://res.cloudinary.com/dv9imdnu9/video/upload/so_0/v1773133296/ssstik.io__quick_code_01_1773132895725_gdoy5m.jpg', 'Ready', NOW(), NOW()),
-      ('22222222-0001-4000-8000-000000000008', 'Image', 'https://res.cloudinary.com/dv9imdnu9/video/upload/so_0/v1773133295/ssstik.io__kodekloud_1773132933228_p3mkpq.jpg', 'Ready', NOW(), NOW()),
-      ('22222222-0001-4000-8000-000000000009', 'Image', 'https://res.cloudinary.com/dv9imdnu9/video/upload/so_0/v1773133295/ssstik.io__freecodecamp_1773133225172_ifyfsi.jpg', 'Ready', NOW(), NOW()),
-      ('22222222-0001-4000-8000-000000000010', 'Image', 'https://res.cloudinary.com/dv9imdnu9/video/upload/so_0/v1773133294/ssstik.io__hello.interview_1773133146141_w918tb.jpg', 'Ready', NOW(), NOW()),
-      ('22222222-0001-4000-8000-000000000011', 'Image', 'https://res.cloudinary.com/dv9imdnu9/video/upload/so_0/v1773133294/ssstik.io__hellouileo_1773133073749_pexhij.jpg', 'Ready', NOW(), NOW()),
-      ('22222222-0001-4000-8000-000000000012', 'Image', 'https://res.cloudinary.com/dv9imdnu9/video/upload/so_0/v1773133294/ssstik.io__khalil_developer_1773132787514_c2wpjt.jpg', 'Ready', NOW(), NOW()),
-      ('22222222-0001-4000-8000-000000000013', 'Image', 'https://res.cloudinary.com/dv9imdnu9/video/upload/so_0/v1773133292/ssstik.io__coding.kitty7_1773132764156_b9nuoi.jpg', 'Ready', NOW(), NOW()),
-      ('22222222-0001-4000-8000-000000000014', 'Image', 'https://res.cloudinary.com/dv9imdnu9/video/upload/so_0/v1773133292/ssstik.io__david.webdeveloper_1772785043386_bc8d96.jpg', 'Ready', NOW(), NOW()),
-      ('22222222-0001-4000-8000-000000000015', 'Image', 'https://res.cloudinary.com/dv9imdnu9/video/upload/so_0/v1773133292/ssstik.io__clearsquare_1773132816053_jqwwwg.jpg', 'Ready', NOW(), NOW()),
-      ('22222222-0001-4000-8000-000000000016', 'Image', 'https://res.cloudinary.com/dv9imdnu9/video/upload/so_0/v1773133292/ssstik.io__bahamas10__1773133024527_ecslkh.jpg', 'Ready', NOW(), NOW()),
-      ('22222222-0001-4000-8000-000000000017', 'Image', 'https://res.cloudinary.com/dv9imdnu9/video/upload/so_0/v1773133292/ssstik.io__amazonwebservices_1773132961838_kz9qix.jpg', 'Ready', NOW(), NOW())
-    `);
-
     // Insert Media records for profile photos (you'll update URLs manually)
     await queryRunner.query(`
       INSERT INTO media (id, type, url, "processingStatus", "createdAt", "updatedAt") VALUES
@@ -98,7 +76,7 @@ export class SeedDevelopers1710000000000 implements MigrationInterface {
       INSERT INTO developer (
         id, "userId", "firstName", "lastName", "jobTitle", location, "seniorityLevel",
         "techStack", "githubUrl", "linkedinUrl", "personalSiteUrl", bio,
-        "availabilityStatus", "profilePhotoId", "introVideoId", "introVideoThumbnailId", "onboardingCompleted", "createdAt", "updatedAt"
+        "availabilityStatus", "profilePhotoId", "introVideoId", "onboardingCompleted", "createdAt", "updatedAt"
       ) VALUES
       (
         'bbbbbbbb-0001-4000-8000-000000000001',
@@ -115,7 +93,6 @@ export class SeedDevelopers1710000000000 implements MigrationInterface {
         'Available',
         '33333333-0001-4000-8000-000000000001',
         '11111111-0001-4000-8000-000000000001',
-        '22222222-0001-4000-8000-000000000001',
         true, NOW(), NOW()
       ),
       (
@@ -133,7 +110,6 @@ export class SeedDevelopers1710000000000 implements MigrationInterface {
         'OpenToOffers',
         '33333333-0001-4000-8000-000000000002',
         '11111111-0001-4000-8000-000000000002',
-        '22222222-0001-4000-8000-000000000002',
         true, NOW(), NOW()
       ),
       (
@@ -151,7 +127,6 @@ export class SeedDevelopers1710000000000 implements MigrationInterface {
         'Available',
         '33333333-0001-4000-8000-000000000003',
         '11111111-0001-4000-8000-000000000003',
-        '22222222-0001-4000-8000-000000000003',
         true, NOW(), NOW()
       ),
       (
@@ -169,7 +144,6 @@ export class SeedDevelopers1710000000000 implements MigrationInterface {
         'NotAvailable',
         '33333333-0001-4000-8000-000000000004',
         '11111111-0001-4000-8000-000000000004',
-        '22222222-0001-4000-8000-000000000004',
         true, NOW(), NOW()
       ),
       (
@@ -187,7 +161,6 @@ export class SeedDevelopers1710000000000 implements MigrationInterface {
         'Available',
         '33333333-0001-4000-8000-000000000005',
         '11111111-0001-4000-8000-000000000005',
-        '22222222-0001-4000-8000-000000000005',
         true, NOW(), NOW()
       ),
       (
@@ -205,7 +178,6 @@ export class SeedDevelopers1710000000000 implements MigrationInterface {
         'OpenToOffers',
         '33333333-0001-4000-8000-000000000006',
         '11111111-0001-4000-8000-000000000006',
-        '22222222-0001-4000-8000-000000000006',
         true, NOW(), NOW()
       ),
       (
@@ -223,7 +195,6 @@ export class SeedDevelopers1710000000000 implements MigrationInterface {
         'Available',
         '33333333-0001-4000-8000-000000000007',
         '11111111-0001-4000-8000-000000000007',
-        '22222222-0001-4000-8000-000000000007',
         true, NOW(), NOW()
       ),
       (
@@ -241,7 +212,6 @@ export class SeedDevelopers1710000000000 implements MigrationInterface {
         'OpenToOffers',
         '33333333-0001-4000-8000-000000000008',
         '11111111-0001-4000-8000-000000000008',
-        '22222222-0001-4000-8000-000000000008',
         true, NOW(), NOW()
       ),
       (
@@ -259,7 +229,6 @@ export class SeedDevelopers1710000000000 implements MigrationInterface {
         'NotAvailable',
         '33333333-0001-4000-8000-000000000009',
         '11111111-0001-4000-8000-000000000009',
-        '22222222-0001-4000-8000-000000000009',
         true, NOW(), NOW()
       ),
       (
@@ -277,7 +246,6 @@ export class SeedDevelopers1710000000000 implements MigrationInterface {
         'Available',
         '33333333-0001-4000-8000-000000000010',
         '11111111-0001-4000-8000-000000000010',
-        '22222222-0001-4000-8000-000000000010',
         true, NOW(), NOW()
       ),
       (
@@ -295,7 +263,6 @@ export class SeedDevelopers1710000000000 implements MigrationInterface {
         'Available',
         '33333333-0001-4000-8000-000000000011',
         '11111111-0001-4000-8000-000000000011',
-        '22222222-0001-4000-8000-000000000011',
         true, NOW(), NOW()
       ),
       (
@@ -313,7 +280,6 @@ export class SeedDevelopers1710000000000 implements MigrationInterface {
         'OpenToOffers',
         '33333333-0001-4000-8000-000000000012',
         '11111111-0001-4000-8000-000000000012',
-        '22222222-0001-4000-8000-000000000012',
         true, NOW(), NOW()
       ),
       (
@@ -331,7 +297,6 @@ export class SeedDevelopers1710000000000 implements MigrationInterface {
         'NotAvailable',
         '33333333-0001-4000-8000-000000000013',
         '11111111-0001-4000-8000-000000000013',
-        '22222222-0001-4000-8000-000000000013',
         true, NOW(), NOW()
       ),
       (
@@ -349,7 +314,6 @@ export class SeedDevelopers1710000000000 implements MigrationInterface {
         'Available',
         '33333333-0001-4000-8000-000000000014',
         '11111111-0001-4000-8000-000000000014',
-        '22222222-0001-4000-8000-000000000014',
         true, NOW(), NOW()
       ),
       (
@@ -367,7 +331,6 @@ export class SeedDevelopers1710000000000 implements MigrationInterface {
         'Available',
         '33333333-0001-4000-8000-000000000015',
         '11111111-0001-4000-8000-000000000015',
-        '22222222-0001-4000-8000-000000000015',
         true, NOW(), NOW()
       ),
       (
@@ -385,7 +348,6 @@ export class SeedDevelopers1710000000000 implements MigrationInterface {
         'OpenToOffers',
         '33333333-0001-4000-8000-000000000016',
         '11111111-0001-4000-8000-000000000016',
-        '22222222-0001-4000-8000-000000000016',
         true, NOW(), NOW()
       ),
       (
@@ -403,7 +365,6 @@ export class SeedDevelopers1710000000000 implements MigrationInterface {
         'OpenToOffers',
         '33333333-0001-4000-8000-000000000017',
         '11111111-0001-4000-8000-000000000017',
-        '22222222-0001-4000-8000-000000000017',
         true, NOW(), NOW()
       )
     `);
@@ -516,7 +477,6 @@ export class SeedDevelopers1710000000000 implements MigrationInterface {
     await queryRunner.query(`DELETE FROM developer WHERE id LIKE 'bbbbbbbb-0001-4000-8000-%'`);
     await queryRunner.query(`DELETE FROM "user" WHERE id LIKE 'aaaaaaaa-0001-4000-8000-%'`);
     await queryRunner.query(`DELETE FROM media WHERE id LIKE '33333333-0001-4000-8000-%'`);
-    await queryRunner.query(`DELETE FROM media WHERE id LIKE '22222222-0001-4000-8000-%'`);
     await queryRunner.query(`DELETE FROM media WHERE id LIKE '11111111-0001-4000-8000-%'`);
   }
 }

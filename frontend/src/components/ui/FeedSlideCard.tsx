@@ -3,6 +3,7 @@
 import { VideoPlayer } from "@/components/ui/VideoPlayer";
 import { MapPinIcon, BriefcaseIcon } from "@/components/icons";
 import { formatSeniorityLevel } from "@/lib/utils/developer";
+import { getVideoThumbnailUrl } from "@/lib/utils/cloudinary";
 
 interface Developer {
   id: string;
@@ -13,7 +14,6 @@ interface Developer {
   seniorityLevel?: string | null;
   techStack: string[];
   introVideo?: { url: string } | null;
-  introVideoThumbnail?: { url: string } | null;
 }
 
 interface FeedSlideCardProps {
@@ -25,7 +25,6 @@ export function FeedSlideCard({ developer, isActive }: FeedSlideCardProps) {
   const experienceText = developer.seniorityLevel
     ? formatSeniorityLevel(developer.seniorityLevel)
     : null;
-  console.log(developer);
 
   return (
     <div className={`relative w-full h-full rounded-2xl overflow-hidden shadow-xl border border-slate-200 bg-slate-900 touch-pan-y transition-opacity duration-300 ${isActive ? "opacity-100" : "opacity-90"}`}>
@@ -33,7 +32,7 @@ export function FeedSlideCard({ developer, isActive }: FeedSlideCardProps) {
         <VideoPlayer
           key={developer.id}
           url={developer.introVideo.url}
-          thumbnail={developer.introVideoThumbnail?.url}
+          thumbnail={getVideoThumbnailUrl(developer.introVideo.url)}
           className="w-full h-full"
           aspectRatio="portrait"
           loop

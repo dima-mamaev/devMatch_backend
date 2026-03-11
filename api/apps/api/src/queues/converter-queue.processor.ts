@@ -1,16 +1,12 @@
 import { OnWorkerEvent, Processor, WorkerHost } from '@nestjs/bullmq';
 import type { Job } from 'bullmq';
 import { MediaService } from '../media/media.service';
-import { GeneratorQueueService } from './generator-queue.service';
 import { MediaProcessingStatus } from '../shared/enums/media-processing-status.enum';
 import { ConvertVideoOutputData } from '../../../../types/types';
 
 @Processor('ConverterOutputQueue')
 export class ConverterQueueProcessor extends WorkerHost {
-  constructor(
-    private readonly mediaService: MediaService,
-    private readonly generatorQueueService: GeneratorQueueService,
-  ) {
+  constructor(private readonly mediaService: MediaService) {
     super();
   }
 
@@ -26,20 +22,11 @@ export class ConverterQueueProcessor extends WorkerHost {
   }
 
   async saveVideo(data: ConvertVideoOutputData) {
-    const updatedMedia = await this.mediaService.updateUrl(
+    await this.mediaService.updateUrl(data.videoMediaId, data.outputPath);
+    await this.mediaService.updateProcessingStatus(
       data.videoMediaId,
-      data.outputPath,
+      MediaProcessingStatus.Ready,
     );
-
-    if (data.developerId) {
-      await this.generatorQueueService.enqueueGenerateThumbnail({
-        videoPath: data.outputPath,
-        developerId: data.developerId,
-        videoMediaId: data.videoMediaId,
-      });
-    }
-
-    return updatedMedia;
   }
 
   async handleConversionFailed(data: ConvertVideoOutputData) {

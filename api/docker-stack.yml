@@ -37,22 +37,6 @@ services:
       placement:
         constraints:
           - node.labels.node-1 == true
-  thumbnail:
-    image: devmatch/api:${TAG}
-    env_file: .env
-    environment:
-      - NO_COLOR='true'
-      - TASK_SLOT='{{.Task.Slot}}'
-    command: yarn start:thumbnail:prod
-    deploy:
-      resources:
-        limits:
-          cpus: '0.7'
-          memory: 2g
-      replicas: 1
-      placement:
-        constraints:
-          - node.labels.node-1 == true
   migration:
     image: devmatch/api:${TAG}
     env_file: .env

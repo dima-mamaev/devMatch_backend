@@ -235,7 +235,6 @@ export function DeveloperProfile() {
             />
             <IntroVideoForm
               introVideo={profile.introVideo || null}
-              introVideoThumbnail={profile.introVideoThumbnail || null}
               onUpload={handleUploadIntroVideo}
               isUploading={uploadVideoLoading}
             />

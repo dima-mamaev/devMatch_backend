@@ -39,11 +39,6 @@ export const GET_ME = gql`
               type
               processingStatus
             }
-            introVideoThumbnail {
-              id
-              url
-              type
-            }
             experiences {
               id
               companyName
@@ -103,11 +98,6 @@ export const GET_MY_DEVELOPER_PROFILE = gql`
         type
         processingStatus
       }
-      introVideoThumbnail {
-        id
-        url
-        type
-      }
       experiences {
         id
         companyName
@@ -153,11 +143,6 @@ export const GET_DEVELOPER = gql`
         url
         type
         processingStatus
-      }
-      introVideoThumbnail {
-        id
-        url
-        type
       }
       experiences {
         id
@@ -207,10 +192,6 @@ export const GET_DEVELOPERS = gql`
           type
         }
         introVideo {
-          id
-          url
-        }
-        introVideoThumbnail {
           id
           url
         }
@@ -368,7 +349,7 @@ export const DELETE_PROJECT = gql`
 // ==================== MEDIA MUTATIONS ====================
 
 export const UPLOAD_PROFILE_PHOTO = gql`
-  mutation UploadProfilePhoto($file: CustomUpload!) {
+  mutation UploadProfilePhoto($file: Upload!) {
     uploadProfilePhoto(file: $file) {
       id
       url
@@ -384,7 +365,7 @@ export const DELETE_PROFILE_PHOTO = gql`
 `;
 
 export const UPLOAD_INTRO_VIDEO = gql`
-  mutation UploadIntroVideo($file: CustomUpload!) {
+  mutation UploadIntroVideo($file: Upload!) {
     uploadIntroVideo(file: $file)
   }
 `;

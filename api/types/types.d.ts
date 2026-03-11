@@ -37,16 +37,3 @@ export type ConvertVideoOutputData = {
   developerId: UUID;
   videoMediaId: UUID; // Passed through from input
 };
-
-// Thumbnail Generator Queue Types
-export type GenerateThumbnailInputData = {
-  videoPath: string;
-  developerId: UUID;
-  videoMediaId: UUID;
-};
-
-export type GenerateThumbnailOutputData = {
-  path: string;
-  developerId: UUID;
-  videoMediaId: UUID;
-};
