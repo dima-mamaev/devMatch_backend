@@ -20,10 +20,6 @@ export class AIMatchSendInput {
   @IsNotEmpty()
   @IsString()
   prompt: string;
-
-  @Field(() => [String], { nullable: true })
-  @IsOptional()
-  excludeDeveloperIds?: string[];
 }
 
 @InputType()

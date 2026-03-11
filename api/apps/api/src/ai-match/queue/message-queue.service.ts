@@ -3,7 +3,7 @@ import { randomUUID } from 'crypto';
 import { SessionService } from '../session/session.service.js';
 import { PubSubService } from '../streaming/pubsub.service.js';
 import { AIMatchEventType, createEvent } from '../../../../../libs/shared/src/types/event.types.js';
-import { QueuedMessage } from './queue.types.js';
+import { QueuedMessage, MessageStatus } from './queue.types.js';
 
 @Injectable()
 export class MessageQueueService {
@@ -53,15 +53,11 @@ export class MessageQueueService {
     sessionId: string,
     messageId: string,
   ): Promise<void> {
-    const session = await this.sessionService.getSession(sessionId);
-    if (!session) return;
+    const message = await this.updateMessageStatus(sessionId, messageId, 'processing', {
+      startedAt: new Date().toISOString(),
+    });
 
-    const message = session.messageQueue.find((m) => m.messageId === messageId);
     if (message) {
-      message.status = 'processing';
-      message.startedAt = new Date().toISOString();
-      await this.sessionService.saveSession(session);
-
       await this.pubsubService.publish(
         sessionId,
         createEvent(AIMatchEventType.MESSAGE_STARTED, sessionId, messageId, {
@@ -75,15 +71,9 @@ export class MessageQueueService {
     sessionId: string,
     messageId: string,
   ): Promise<void> {
-    const session = await this.sessionService.getSession(sessionId);
-    if (!session) return;
-
-    const message = session.messageQueue.find((m) => m.messageId === messageId);
-    if (message) {
-      message.status = 'completed';
-      message.completedAt = new Date().toISOString();
-      await this.sessionService.saveSession(session);
-    }
+    await this.updateMessageStatus(sessionId, messageId, 'completed', {
+      completedAt: new Date().toISOString(),
+    });
   }
 
   async cancelMessage(sessionId: string, messageId: string): Promise<boolean> {
@@ -123,30 +113,24 @@ export class MessageQueueService {
   }
 
   async markMessageFailed(sessionId: string, messageId: string): Promise<void> {
-    const session = await this.sessionService.getSession(sessionId);
-    if (!session) return;
-
-    const message = session.messageQueue.find((m) => m.messageId === messageId);
-    if (message) {
-      message.status = 'failed';
-      message.completedAt = new Date().toISOString();
-      await this.sessionService.saveSession(session);
-    }
+    await this.updateMessageStatus(sessionId, messageId, 'failed', {
+      completedAt: new Date().toISOString(),
+    });
   }
 
   async markMessageCancelled(
     sessionId: string,
     messageId: string,
   ): Promise<void> {
-    const session = await this.sessionService.getSession(sessionId);
-    if (!session) return;
+    const message = await this.updateMessageStatus(
+      sessionId,
+      messageId,
+      'cancelled',
+      { completedAt: new Date().toISOString() },
+      'processing', // Only cancel if currently processing
+    );
 
-    const message = session.messageQueue.find((m) => m.messageId === messageId);
-    if (message && message.status === 'processing') {
-      message.status = 'cancelled';
-      message.completedAt = new Date().toISOString();
-      await this.sessionService.saveSession(session);
-
+    if (message) {
       await this.pubsubService.publish(
         sessionId,
         createEvent(AIMatchEventType.CANCELLED, sessionId, messageId, {
@@ -154,5 +138,26 @@ export class MessageQueueService {
         }),
       );
     }
+  }
+
+  private async updateMessageStatus(
+    sessionId: string,
+    messageId: string,
+    newStatus: MessageStatus,
+    updates: Partial<QueuedMessage> = {},
+    requiredStatus?: MessageStatus,
+  ): Promise<QueuedMessage | null> {
+    const session = await this.sessionService.getSession(sessionId);
+    if (!session) return null;
+
+    const message = session.messageQueue.find((m) => m.messageId === messageId);
+    if (!message) return null;
+    if (requiredStatus && message.status !== requiredStatus) return null;
+
+    message.status = newStatus;
+    Object.assign(message, updates);
+    await this.sessionService.saveSession(session);
+
+    return message;
   }
 }

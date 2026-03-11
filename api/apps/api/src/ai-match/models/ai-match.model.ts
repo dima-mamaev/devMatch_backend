@@ -76,24 +76,6 @@ export class AIMatchResult {
 }
 
 @ObjectType()
-export class AIMatchResponse {
-  @Field(() => [AIMatchResult])
-  matches: AIMatchResult[];
-
-  @Field(() => String)
-  searchSummary: string;
-
-  @Field(() => Int)
-  totalCandidates: number;
-
-  @Field(() => String, { nullable: true })
-  threadId?: string;
-
-  @Field(() => Boolean, { defaultValue: false })
-  isOffTopic: boolean;
-}
-
-@ObjectType()
 export class AIMatchRateLimitInfo {
   @Field(() => Int)
   remaining: number;
@@ -136,6 +118,12 @@ export class ConversationMatchDeveloper {
 
   @Field(() => String, { nullable: true })
   profilePhotoUrl?: string;
+
+  @Field(() => [AIMatchDeveloperExperience], { nullable: true })
+  experiences?: AIMatchDeveloperExperience[];
+
+  @Field(() => [AIMatchDeveloperProject], { nullable: true })
+  projects?: AIMatchDeveloperProject[];
 }
 
 @ObjectType()

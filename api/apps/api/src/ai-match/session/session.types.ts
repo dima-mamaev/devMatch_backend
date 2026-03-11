@@ -1,5 +1,16 @@
 import { QueuedMessage } from '../queue/queue.types.js';
 
+export interface DeveloperExperience {
+  companyName: string;
+  position: string;
+  yearsWorked: number;
+}
+
+export interface DeveloperProject {
+  name: string;
+  techStack: string[];
+}
+
 export interface ConversationMatchDeveloper {
   id: string;
   firstName: string;
@@ -11,6 +22,8 @@ export interface ConversationMatchDeveloper {
   location?: string;
   availabilityStatus?: string;
   profilePhotoUrl?: string;
+  experiences?: DeveloperExperience[];
+  projects?: DeveloperProject[];
 }
 
 export interface ConversationMatch {

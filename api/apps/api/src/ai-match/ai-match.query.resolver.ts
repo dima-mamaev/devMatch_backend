@@ -9,8 +9,8 @@ import {
 } from './models/ai-match.model.js';
 import { ActiveUser } from '../shared/decorators/active-user.decorator.js';
 import { User } from '../user/models/user.entity.js';
-import { UserType } from './rate-limit/rate-limit.types.js';
 import { SkipSystemGuard } from '../shared/decorators/skip-system-guard.decorator.js';
+import { getUserInfo } from './utils/user-info.util.js';
 
 @Resolver()
 export class AIMatchQueryResolver {
@@ -26,7 +26,7 @@ export class AIMatchQueryResolver {
     @ActiveUser() user: User | null,
     @Context() ctx: { req?: { ip?: string; headers?: Record<string, string> } },
   ): Promise<AIMatchRateLimitInfo> {
-    const { userType, identifier } = this.getUserInfo(user, ctx);
+    const { userType, identifier } = getUserInfo(user, ctx);
     return this.rateLimitService.getRateLimitInfo(identifier, userType);
   }
 
@@ -53,25 +53,5 @@ export class AIMatchQueryResolver {
   })
   aiMatchEvents(@Args('sessionId') sessionId: string) {
     return this.pubsubService.subscribe(sessionId);
-  }
-
-  private getUserInfo(
-    user: User | null,
-    ctx: { req?: { ip?: string; headers?: Record<string, string> } },
-  ): { userType: UserType; identifier: string } {
-    if (!user) {
-      const ip =
-        ctx.req?.ip || ctx.req?.headers?.['x-forwarded-for'] || 'unknown';
-      const fingerprint = ctx.req?.headers?.['x-fingerprint'] || '';
-      return {
-        userType: 'guest',
-        identifier: `${ip}:${fingerprint}`,
-      };
-    }
-
-    return {
-      userType: 'authenticated',
-      identifier: user.id,
-    };
   }
 }

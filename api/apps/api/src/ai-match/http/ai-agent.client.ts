@@ -8,8 +8,6 @@ interface MatchingRequest {
   messageId: string;
   prompt: string;
   threadId?: string;
-  excludeIds?: string[];
-  maxResults?: number;
 }
 
 interface MatchingResponse {
@@ -27,11 +25,6 @@ interface CancelRequest {
 interface CancelResponse {
   success: boolean;
   message: string;
-}
-
-interface HealthResponse {
-  healthy: boolean;
-  openaiStatus: string;
 }
 
 @Injectable()
@@ -78,20 +71,6 @@ export class AIAgentClient {
     } catch (error) {
       this.logger.error(
         `Failed to cancel run: ${error instanceof Error ? error.message : 'Unknown error'}`,
-      );
-      throw error;
-    }
-  }
-
-  async healthCheck(): Promise<HealthResponse> {
-    try {
-      const response = await firstValueFrom(
-        this.httpService.get<HealthResponse>(`${this.baseUrl}/health`),
-      );
-      return response.data;
-    } catch (error) {
-      this.logger.error(
-        `Health check failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
       );
       throw error;
     }
