@@ -17,7 +17,12 @@ export class BullConfigService implements SharedBullConfigurationFactory {
       },
       defaultJobOptions: {
         removeOnComplete: true,
-        removeOnFail: 100,
+        removeOnFail: false,
+        attempts: 3,
+        backoff: {
+          type: 'exponential' as const,
+          delay: 5000,
+        },
       },
     };
   }

@@ -1,13 +1,16 @@
-import { Processor, WorkerHost } from '@nestjs/bullmq';
+import { OnWorkerEvent, Processor, WorkerHost } from '@nestjs/bullmq';
 import type { Job } from 'bullmq';
 import { resolve } from 'path';
 import { readFile, unlink, writeFile, mkdir } from 'fs/promises';
 import { VideoConverterService } from './video-converter.service';
+import { Logger } from '@nestjs/common';
 import { ConvertVideoInputData } from '../../../types/types';
 import { CloudinaryService } from './cloudinary.service';
 
 @Processor('ConverterInputQueue', { concurrency: 2 })
 export class VideoConverterProcessor extends WorkerHost {
+  private readonly logger = new Logger(VideoConverterProcessor.name);
+
   constructor(
     private readonly videoConverterService: VideoConverterService,
     private readonly cloudinaryService: CloudinaryService,
@@ -78,6 +81,15 @@ export class VideoConverterProcessor extends WorkerHost {
         developerId,
         videoMediaId,
       });
+    }
+  }
+
+  @OnWorkerEvent('failed')
+  async onFailed(job: Job<ConvertVideoInputData>, error: Error) {
+    this.logger.error(`Job ${job.id} failed: ${error.message}`);
+
+    if (job.attemptsMade >= (job.opts.attempts ?? 1)) {
+      await this.videoConverterService.enqueueToDeadLetter(job.data, error.message);
     }
   }
 }

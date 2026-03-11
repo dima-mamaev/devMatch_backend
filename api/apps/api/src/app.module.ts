@@ -10,7 +10,7 @@ import { configSchema } from './config.schema';
 import { GqlConfigService } from './shared/services/gql-config.service';
 import { SharedModule } from './shared/shared.module';
 import { AuthMiddleware } from './shared/middlewares/auth.middleware';
-import { BullConfigService } from './shared/services/bull-config.service';
+import { BullConfigService } from '@app/shared';
 
 @Module({
   imports: [

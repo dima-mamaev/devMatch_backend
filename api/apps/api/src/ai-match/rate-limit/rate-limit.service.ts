@@ -7,9 +7,10 @@ import {
   RateLimitCheckResult,
 } from './rate-limit.types.js';
 
+const RATE_LIMIT_WINDOW_HOURS = 2;
 const RATE_LIMITS: Record<UserType, number> = {
-  guest: 10,
-  authenticated: 20,
+  guest: 5,
+  authenticated: 10,
 };
 
 @Injectable()
@@ -35,8 +36,7 @@ export class RateLimitService implements OnModuleDestroy {
 
     const now = new Date();
     const resetDate = new Date(now);
-    resetDate.setUTCDate(resetDate.getUTCDate() + 1);
-    resetDate.setUTCHours(0, 0, 0, 0);
+    resetDate.setUTCHours(resetDate.getUTCHours() + RATE_LIMIT_WINDOW_HOURS, 0, 0, 0);
     const ttl = Math.floor((resetDate.getTime() - now.getTime()) / 1000);
 
     if (current >= limit) {
@@ -77,8 +77,7 @@ export class RateLimitService implements OnModuleDestroy {
 
     const now = new Date();
     const resetDate = new Date(now);
-    resetDate.setUTCDate(resetDate.getUTCDate() + 1);
-    resetDate.setUTCHours(0, 0, 0, 0);
+    resetDate.setUTCHours(resetDate.getUTCHours() + RATE_LIMIT_WINDOW_HOURS, 0, 0, 0);
 
     return {
       remaining: Math.max(0, limit - current),

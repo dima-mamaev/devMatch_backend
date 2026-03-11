@@ -5,7 +5,7 @@ import { configSchema } from './config.schema';
 import { VideoConverterProcessor } from './video-converter.processor';
 import { VideoConverterService } from './video-converter.service';
 import { CloudinaryService } from './cloudinary.service';
-import { BullConfigService } from './bull-config.service';
+import { BullConfigService } from '@app/shared';
 
 @Module({
   imports: [
@@ -27,6 +27,9 @@ import { BullConfigService } from './bull-config.service';
     }),
     BullModule.registerQueue({
       name: 'ConverterOutputQueue',
+    }),
+    BullModule.registerQueue({
+      name: 'ConverterDeadLetterQueue',
     }),
   ],
   providers: [CloudinaryService, VideoConverterService, VideoConverterProcessor],

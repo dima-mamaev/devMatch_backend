@@ -4,7 +4,7 @@ import { spawn } from 'child_process';
 import { basename, resolve } from 'path';
 import { stat, unlink } from 'fs/promises';
 import type { Queue } from 'bullmq';
-import { ConvertVideoOutputData } from '../../../types/types';
+import { ConvertVideoInputData, ConvertVideoOutputData } from '../../../types/types';
 
 interface VideoInfo {
   codec: string;
@@ -26,6 +26,8 @@ export class VideoConverterService {
   constructor(
     @InjectQueue('ConverterOutputQueue')
     private readonly queue: Queue,
+    @InjectQueue('ConverterDeadLetterQueue')
+    private readonly deadLetterQueue: Queue,
   ) { }
 
   async probeVideo(inputPath: string): Promise<VideoInfo> {
@@ -195,5 +197,13 @@ export class VideoConverterService {
 
   async enqueueConvertedVideoFailed(data: ConvertVideoOutputData) {
     return this.queue.add('ConvertVideoFailed', data);
+  }
+
+  async enqueueToDeadLetter(data: ConvertVideoInputData, errorMessage: string): Promise<void> {
+    await this.deadLetterQueue.add('DeadLetterJob', {
+      ...data,
+      errorMessage,
+      failedAt: new Date().toISOString(),
+    });
   }
 }
