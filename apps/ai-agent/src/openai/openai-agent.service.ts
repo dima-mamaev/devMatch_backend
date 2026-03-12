@@ -12,7 +12,7 @@ export class OpenAIAgentService implements OnModuleInit {
   private readonly logger = new Logger(OpenAIAgentService.name);
   private openai: OpenAI;
   private assistantId: string;
-  private cancelledSessions = new Set<string>();
+  private cancelledMessages = new Set<string>();
 
   constructor(
     private configService: ConfigService,
@@ -113,16 +113,25 @@ export class OpenAIAgentService implements OnModuleInit {
 
     try {
       for await (const event of stream) {
+        if (this.isCancelled(messageId)) {
+          this.logger.log(`Message ${messageId} cancelled, breaking stream loop`);
+          await this.emitEvent(sessionId, messageId, AIMatchEventType.CANCELLED, {});
+          this.clearCancellation(messageId);
+          break;
+        }
         await this.handleStreamEvent(sessionId, messageId, threadId, event);
       }
     } catch (streamError) {
       this.logger.error('Stream error:', streamError);
-      await this.emitEvent(sessionId, messageId, AIMatchEventType.ERROR, {
-        errorMessage:
-          streamError instanceof Error
-            ? streamError.message
-            : 'Stream interrupted',
-      });
+      if (!this.isCancelled(messageId)) {
+        await this.emitEvent(sessionId, messageId, AIMatchEventType.ERROR, {
+          errorMessage:
+            streamError instanceof Error
+              ? streamError.message
+              : 'Stream interrupted',
+        });
+      }
+      this.clearCancellation(messageId);
     }
   }
 
@@ -178,10 +187,24 @@ export class OpenAIAgentService implements OnModuleInit {
     const toolCalls = run.required_action?.submit_tool_outputs?.tool_calls;
     if (!toolCalls) return;
 
+    // Check cancellation before executing tools
+    if (this.isCancelled(messageId)) {
+      this.logger.log(`Message ${messageId} cancelled, skipping tool execution`);
+      return;
+    }
+
     const toolOutputs = await Promise.all(
       toolCalls.map(async (toolCall) => {
         const toolName = toolCall.function.name;
         const args = JSON.parse(toolCall.function.arguments);
+
+        // Skip if cancelled mid-processing
+        if (this.isCancelled(messageId)) {
+          return {
+            tool_call_id: toolCall.id,
+            output: JSON.stringify({ cancelled: true }),
+          };
+        }
 
         await this.emitEvent(sessionId, messageId, AIMatchEventType.TOOL_CALL, {
           toolName,
@@ -190,16 +213,18 @@ export class OpenAIAgentService implements OnModuleInit {
 
         const result = await this.toolHandlers.execute(toolName, args);
 
-        await this.emitEvent(
-          sessionId,
-          messageId,
-          AIMatchEventType.TOOL_RESULT,
-          {
-            toolName,
-            resultSummary: this.summarizeToolResult(toolName, result),
-            candidateCount: Array.isArray(result) ? result.length : undefined,
-          },
-        );
+        if (!this.isCancelled(messageId)) {
+          await this.emitEvent(
+            sessionId,
+            messageId,
+            AIMatchEventType.TOOL_RESULT,
+            {
+              toolName,
+              resultSummary: this.summarizeToolResult(toolName, result),
+              candidateCount: Array.isArray(result) ? result.length : undefined,
+            },
+          );
+        }
 
         return {
           tool_call_id: toolCall.id,
@@ -207,6 +232,12 @@ export class OpenAIAgentService implements OnModuleInit {
         };
       }),
     );
+
+    // Don't submit outputs or continue if cancelled
+    if (this.isCancelled(messageId)) {
+      this.logger.log(`Message ${messageId} cancelled, not submitting tool outputs`);
+      return;
+    }
 
     const continueStream = this.openai.beta.threads.runs.submitToolOutputsStream(
       run.id,
@@ -217,6 +248,10 @@ export class OpenAIAgentService implements OnModuleInit {
     );
 
     for await (const event of continueStream) {
+      if (this.isCancelled(messageId)) {
+        this.logger.log(`Message ${messageId} cancelled, breaking continue stream`);
+        break;
+      }
       await this.handleStreamEvent(sessionId, messageId, threadId, event);
     }
   }
@@ -242,16 +277,16 @@ export class OpenAIAgentService implements OnModuleInit {
         const jsonText = this.extractJsonFromMarkdown(rawText);
         const response = JSON.parse(jsonText);
 
-        if (this.isCancelled(sessionId)) {
-          this.logger.log(`Session ${sessionId} was cancelled, skipping match emission`);
-          this.clearCancellation(sessionId);
+        if (this.isCancelled(messageId)) {
+          this.logger.log(`Message ${messageId} was cancelled, skipping match emission`);
+          this.clearCancellation(messageId);
           return;
         }
 
         for (const match of response.matches || []) {
-          if (this.isCancelled(sessionId)) {
-            this.logger.log(`Session ${sessionId} cancelled mid-processing`);
-            this.clearCancellation(sessionId);
+          if (this.isCancelled(messageId)) {
+            this.logger.log(`Message ${messageId} cancelled mid-processing`);
+            this.clearCancellation(messageId);
             return;
           }
 
@@ -273,8 +308,8 @@ export class OpenAIAgentService implements OnModuleInit {
           );
         }
 
-        if (this.isCancelled(sessionId)) {
-          this.clearCancellation(sessionId);
+        if (this.isCancelled(messageId)) {
+          this.clearCancellation(messageId);
           return;
         }
 
@@ -310,27 +345,30 @@ export class OpenAIAgentService implements OnModuleInit {
     return text.trim();
   }
 
-  async cancelRun(threadId: string, runId: string, sessionId?: string): Promise<boolean> {
-    if (sessionId) {
-      this.cancelledSessions.add(sessionId);
-      this.logger.log(`Session ${sessionId} marked as cancelled`);
-    }
+  async cancelRun(
+    threadId: string,
+    runId: string,
+    messageId: string,
+  ): Promise<boolean> {
+    this.cancelledMessages.add(messageId);
+    this.logger.log(`Message ${messageId} marked as cancelled`);
 
-    try {
-      await this.openai.beta.threads.runs.cancel(runId, { thread_id: threadId });
-      return true;
-    } catch (error) {
-      this.logger.error('Failed to cancel run:', error);
-      return false;
-    }
+    // Best-effort OpenAI cancel - don't wait or fail if it errors
+    this.openai.beta.threads.runs
+      .cancel(runId, { thread_id: threadId })
+      .catch((error) => {
+        this.logger.warn(`OpenAI cancel failed (may already be done): ${error.message}`);
+      });
+
+    return true;
   }
 
-  isCancelled(sessionId: string): boolean {
-    return this.cancelledSessions.has(sessionId);
+  isCancelled(messageId: string): boolean {
+    return this.cancelledMessages.has(messageId);
   }
 
-  clearCancellation(sessionId: string): void {
-    this.cancelledSessions.delete(sessionId);
+  clearCancellation(messageId: string): void {
+    this.cancelledMessages.delete(messageId);
   }
 
   private async emitEvent(

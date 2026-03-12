@@ -12,7 +12,7 @@ interface MatchingRequest {
 }
 
 interface CancelRequest {
-  sessionId: string;
+  messageId: string;
   threadId: string;
   runId: string;
 }
@@ -64,7 +64,7 @@ export class AIAgentController {
     const success = await this.openaiService.cancelRun(
       request.threadId,
       request.runId,
-      request.sessionId,
+      request.messageId,
     );
     return {
       success,

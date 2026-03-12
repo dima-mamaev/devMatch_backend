@@ -127,14 +127,14 @@ export class AIMatchService {
       const runId = await this.sessionService.getCurrentRunId(sessionId);
       this.logger.log(`Session ${sessionId}: runId=${runId}`);
 
-      if (runId) {
+      if (runId && activeMessage) {
         try {
           await this.aiAgentClient.cancelRun({
-            sessionId,
+            messageId: activeMessage.messageId,
             threadId: session.threadId,
             runId,
           });
-          this.logger.log(`Session ${sessionId}: OpenAI run cancelled`);
+          this.logger.log(`Session ${sessionId}: OpenAI run cancelled for message ${activeMessage.messageId}`);
         } catch (error) {
           this.logger.error(
             `Failed to cancel OpenAI run for session ${sessionId}:`,

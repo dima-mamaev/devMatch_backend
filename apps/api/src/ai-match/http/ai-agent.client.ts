@@ -19,7 +19,7 @@ interface MatchingResponse {
 }
 
 interface CancelRequest {
-  sessionId: string;
+  messageId: string;
   threadId: string;
   runId: string;
 }
