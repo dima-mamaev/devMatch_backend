@@ -22,7 +22,7 @@ services:
         constraints:
           - node.labels.node-1 == true
   converter:
-    image: devmatch/api:${TAG}
+    image: devmatch/converter:${TAG}
     env_file: .env
     environment:
       - NO_COLOR='true'

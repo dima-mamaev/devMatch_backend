@@ -1,6 +1,6 @@
 import { Controller, Post, Body, Logger } from '@nestjs/common';
-import { OpenAIAgentService } from './openai/openai-agent.service.js';
-import { EventPublisherService } from './events/event-publisher.service.js';
+import { OpenAIAgentService } from './openai/openai-agent.service';
+import { EventPublisherService } from './events/event-publisher.service';
 
 interface MatchingRequest {
   sessionId: string;

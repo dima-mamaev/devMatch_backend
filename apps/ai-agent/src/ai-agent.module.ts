@@ -1,17 +1,21 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AIAgentController } from './ai-agent.controller.js';
-import { OpenAIAgentService } from './openai/openai-agent.service.js';
-import { ToolHandlers } from './openai/tools/tool-handlers.js';
-import { EventPublisherService } from './events/event-publisher.service.js';
-import { Developer } from '../../../libs/shared/src/entities/developer.entity.js';
-import { Experience } from '../../../libs/shared/src/entities/experience.entity.js';
-import { Project } from '../../../libs/shared/src/entities/project.entity.js';
+import { AIAgentController } from './ai-agent.controller';
+import { OpenAIAgentService } from './openai/openai-agent.service';
+import { ToolHandlers } from './openai/tools/tool-handlers';
+import { EventPublisherService } from './events/event-publisher.service';
+import { Developer } from '../../../libs/shared/src/entities/developer.entity';
+import { Experience } from '../../../libs/shared/src/entities/experience.entity';
+import { Project } from '../../../libs/shared/src/entities/project.entity';
+import { configSchema } from './config.schema';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      validationSchema: configSchema,
+    }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({

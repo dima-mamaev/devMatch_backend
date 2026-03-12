@@ -1,11 +1,11 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import OpenAI from 'openai';
-import { ASSISTANT_INSTRUCTIONS } from './assistant-config.js';
-import { TOOL_DEFINITIONS } from './tools/tool-definitions.js';
-import { ToolHandlers } from './tools/tool-handlers.js';
-import { EventPublisherService } from '../events/event-publisher.service.js';
-import { AIMatchEventType, createEvent } from '../../../../libs/shared/src/types/event.types.js';
+import { ASSISTANT_INSTRUCTIONS } from './assistant-config';
+import { TOOL_DEFINITIONS } from './tools/tool-definitions';
+import { ToolHandlers } from './tools/tool-handlers';
+import { EventPublisherService } from '../events/event-publisher.service';
+import { AIMatchEventType, createEvent } from '../../../../libs/shared/src/types/event.types';
 
 @Injectable()
 export class OpenAIAgentService implements OnModuleInit {

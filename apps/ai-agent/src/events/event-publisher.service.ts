@@ -5,7 +5,7 @@ import {
   AIMatchEvent,
   AIMatchEventType,
   createEvent,
-} from '../../../../libs/shared/src/types/event.types.js';
+} from '../../../../libs/shared/src/types/event.types';
 
 @Injectable()
 export class EventPublisherService implements OnModuleDestroy {

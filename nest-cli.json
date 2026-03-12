@@ -22,7 +22,7 @@
     "video-converter": {
       "type": "application",
       "root": "apps/video-converter",
-      "entryFile": "video-converter/src/main",
+      "entryFile": "main",
       "sourceRoot": "apps/video-converter/src",
       "compilerOptions": {
         "tsConfigPath": "apps/video-converter/tsconfig.app.json"

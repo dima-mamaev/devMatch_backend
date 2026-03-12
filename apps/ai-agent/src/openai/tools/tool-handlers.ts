@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, SelectQueryBuilder } from 'typeorm';
-import { Developer } from '../../../../../libs/shared/src/entities/developer.entity.js';
+import { Developer } from '../../../../../libs/shared/src/entities/developer.entity';
 import type {
   DeveloperSearchParams,
   DeveloperProfile,
-} from '../../../../../libs/shared/src/types/agent.types.js';
+} from '../../../../../libs/shared/src/types/agent.types';
 
 const ROLE_MAPPINGS: Record<string, { techKeywords: string[]; jobTitleKeywords: string[] }> = {
   devops: {

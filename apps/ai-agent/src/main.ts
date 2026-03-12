@@ -1,5 +1,5 @@
 import { NestFactory } from '@nestjs/core';
-import { AIAgentModule } from './ai-agent.module.js';
+import { AIAgentModule } from './ai-agent.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AIAgentModule);
